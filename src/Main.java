@@ -44,6 +44,7 @@ public class Main extends Application{
     List<Fiender> fiender = new ArrayList<>();
     List<Skudd> bullets = new ArrayList<>();
     List<GameObject> walls = new ArrayList<>();
+    List<FiendeSkudd> Enemybullets = new ArrayList<>();
 
 
 
@@ -147,10 +148,19 @@ public class Main extends Application{
 
         fiender.add(fiende);
         addGameObject(fiende,x,y);
-        // fiende.setVelocity(new Point2D(-player.getVelocity().multiply(5).getX(),-player.getVelocity().multiply(5).getY()));
-        fiende.setVelocity(new Point2D(Math.random()*4-2,Math.random()*4-2));
+
+
+        System.out.println(fiende.getDecideActiveState());
 
     }
+
+    private void addFiendeBullet(FiendeSkudd bullet, double x, double y){
+        Enemybullets.add(bullet);
+        addGameObject(bullet,x,y);
+
+    }
+
+
 
     // GameObject er Parent klassen til alle spill objektene
 
@@ -202,13 +212,56 @@ public class Main extends Application{
                     bullet.setVelocity(new Point2D(bullet.getVelocity().getX() + Math.random() * 10 - 5, bullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
                 }else {
                     bullet.setAlive(false);
+                    root.getChildren().remove(bullet.getView());
 
                 }
 
             }
+
         }
 
+        for (Fiender fiende3 : fiender) {
 
+
+            for (FiendeSkudd fbullet : Enemybullets) {
+
+                if (fbullet.isColliding(player)) {
+                    player.setHp(player.getHp() - 10);
+                    fbullet.setAlive(false);
+                    root.getChildren().remove(fbullet.getView());
+                    fbullet.update();
+                }
+                if (fbullet.isColliding(wall1) || fbullet.isColliding(wall2) || fbullet.isColliding(wall3) || fbullet.isColliding(wall4)) {
+                    // bullet.setVelocity(new Point2D(Math.random()*10-5,Math.random()*10-5));
+                    if (Math.random() * 12 - 5 < 4) {
+                        fbullet.setVelocity(new Point2D(fbullet.getVelocity().getX() + Math.random() * 10 - 5, fbullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
+                    } else {
+                        fbullet.setAlive(false);
+                        root.getChildren().remove(fbullet.getView());
+
+                    }
+
+                }
+            }
+            if (fiende3.getDecideActiveState()== 0) {
+
+                if (Math.random() < 0.1) {
+
+                    FiendeSkudd fiendeBullet2 = new FiendeSkudd();
+                    addFiendeBullet(fiendeBullet2, fiende3.getView().getTranslateX(), fiende3.getView().getTranslateY());
+                    fiendeBullet2.setVelocity((fiende3.getVelocity().normalize().multiply(3)));
+
+                    fiendeBullet2.update();
+                }
+
+
+            }
+
+
+            fiende3.FSM(player, fiende3);
+            //   fiende3.update();
+
+        }
 
 
 
@@ -235,24 +288,36 @@ public class Main extends Application{
 
         //her fjerner man kuller og fiender hvis de er døde
 
+        Enemybullets.removeIf(FiendeSkudd::isDead);
         bullets.removeIf(Skudd::isDead);
         fiender.removeIf(Fiender::isDead);
 
         bullets.forEach(Skudd::update);
         fiender.forEach(Fiender::update);
+        Enemybullets.forEach(FiendeSkudd:: update);
+
 
         player.update();
 
         //her leger man til fiender, vi bruker konstruktøren fra klassen fiender for å kunne putte inn verdier , da kan vi også gjøre fiendene sterker over tid
 
-        if (Math.random() < 0.1){
+        if (Math.random() < 0.005){
             addEnemy((new Fiender(100,10,true,(new Rectangle(20,20, RED)))),300,250 /*Math.random() * 600, Math.random() * 600*/);
 
         }
 
+//_________________________TESTING OF METHODS_______________________//
 
         // testing av hp system
-        System.out.println(player.getHp());
+        //  System.out.println(player.getHp());
+        // System.out.println((player.getView().getTranslateX() - 300)+ "+" + (player.getView().getTranslateY()- 250));
+
+       /*for (Fiender fiende5 : fiender) {
+          System.out.println( Math.pow((player.getX() - (fiende5.getX())),2)*0.001);
+           System.out.println( Math.pow((player.getY() - (fiende5.getY())),2)*0.001);
+        }*/
+
+
     }
 
 
@@ -368,12 +433,15 @@ public class Main extends Application{
                 }
 
             }
+
+            //_______________________TESTING AV VELOCITY_____________________//
+          /*
             // System.out.println(player.getVelocity().normalize().multiply(10));
             System.out.println(player.getVelocity());
             System.out.println(player.getVelocity().getX());
             System.out.println(player.getVelocity().getY());
             //System.out.println(new Point2D(0,5.0).getY());
-
+*/
 
 
         });
