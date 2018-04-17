@@ -60,7 +60,7 @@ public class Fiender extends GameObject{
 
     public void StateShoot(GameObject object, Fiender object2) {
 
-        object2.setVelocity(new Point2D(((object.getX() - object2.getX()) * 0.01), ((object.getY() - object2.getY()) * 0.01)));
+            object2.setVelocity(new Point2D((((object.getX() - object2.getX()) * 0.01)), (((object.getY() - object2.getY()) * 0.01))));
 
 
 
@@ -74,7 +74,9 @@ public class Fiender extends GameObject{
     public void StateWalk(GameObject object, Fiender object2) {
 
 
-        object2.setVelocity(new Point2D(((object.getX() - object2.getX()) * 0.01), ((object.getY() - object2.getY()) * 0.01)));
+
+            object2.setVelocity(new Point2D(((object.getX() - object2.getX()) * 0.01), ((object.getY() - object2.getY()) * 0.01)));
+
 
         if (Math.pow((object.getX() - object2.getX()),2) *0.001 <= 5 || Math.pow((object.getY() - object2.getY()),2)* 0.001 <= 5 ) {
             setState(0);

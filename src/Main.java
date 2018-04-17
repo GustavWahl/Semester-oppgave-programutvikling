@@ -95,7 +95,7 @@ public class Main extends Application{
     // Denne metoden Viser og lager alt innenfor Scenen
     private Parent createContent(){
         root = new Pane();
-        root.setPrefSize(600,600);
+        root.setPrefSize(2400,1200);
 
         player = new Spiller(100, 10, 0,"Gustav",lagkarakter());
         player.setVelocity(new Point2D(0,-0.001));
@@ -104,15 +104,15 @@ public class Main extends Application{
 
         addGameObject(player, 300, 300);
 
-        wall1 = new GameObject(new Rectangle(600,10,new Color(0, 0, 0, 0.4824)));
-        wall2 = new GameObject(new Rectangle(600,10,new Color(0, 0, 0, 0.4824)));
-        wall3 = new GameObject(new Rectangle(10,600,new Color(0, 0, 0, 0.4824)));
-        wall4 = new GameObject(new Rectangle(10,600,new Color(0, 0, 0, 0.4824)));
+        wall1 = new GameObject(new Rectangle(2400,10,new Color(0, 0, 0, 0.4824)));
+        wall2 = new GameObject(new Rectangle(2400,10,new Color(0, 0, 0, 0.4824)));
+        wall3 = new GameObject(new Rectangle(10,1200,new Color(0, 0, 0, 0.4824)));
+        wall4 = new GameObject(new Rectangle(10,1200,new Color(0, 0, 0, 0.4824)));
 
         addGameObject(wall1,0,0);
-        addGameObject(wall2,0,590);
+        addGameObject(wall2,0,1190);
         addGameObject(wall3,0,0);
-        addGameObject(wall4,590,0);
+        addGameObject(wall4,2390,0);
 
         walls.add(wall1);
         walls.add(wall2);
@@ -243,7 +243,7 @@ public class Main extends Application{
 
                 }
             }
-            if (fiende3.getDecideActiveState()== 0) {
+            if (fiende3.getDecideActiveState() == 0) {
 
                 if (Math.random() < 0.1) {
 
@@ -258,11 +258,13 @@ public class Main extends Application{
             }
 
 
-            fiende3.FSM(player, fiende3);
-            //   fiende3.update();
+                    fiende3.FSM(player, fiende3);
+                //   fiende3.update();
+
+
+
 
         }
-
 
 
         for (Fiender fiende1 : fiender) {
