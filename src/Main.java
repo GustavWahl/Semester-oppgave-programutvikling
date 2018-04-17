@@ -233,7 +233,7 @@ public class Main extends Application{
                 }
                 if (fbullet.isColliding(wall1) || fbullet.isColliding(wall2) || fbullet.isColliding(wall3) || fbullet.isColliding(wall4)) {
                     // bullet.setVelocity(new Point2D(Math.random()*10-5,Math.random()*10-5));
-                    if (Math.random() * 12 - 5 < 4) {
+                    if (Math.random() * 13 - 5 < 4) {
                         fbullet.setVelocity(new Point2D(fbullet.getVelocity().getX() + Math.random() * 10 - 5, fbullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
                     } else {
                         fbullet.setAlive(false);
