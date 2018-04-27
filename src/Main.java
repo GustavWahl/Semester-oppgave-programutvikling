@@ -49,11 +49,13 @@ public class Main extends Application{
     private GameObject wall3;
     private GameObject wall4;
     private Button strt;
+    private boolean powerup;
 
     List<Fiender> fiender = new ArrayList<>();
     List<Skudd> bullets = new ArrayList<>();
     List<GameObject> walls = new ArrayList<>();
     List<FiendeSkudd> Enemybullets = new ArrayList<>();
+    List<GameObject> powerups = new ArrayList<>();
 
     public static void Main(String[] args) {
 
@@ -184,6 +186,12 @@ public class Main extends Application{
     private void addFiendeBullet(FiendeSkudd bullet, double x, double y){
         Enemybullets.add(bullet);
         addGameObject(bullet,x,y);
+    }
+
+    private void addPowerUp(GameObject ups, double x, double y){
+        powerups.add(ups);
+        addGameObject(ups,x,y);
+
     }
 
 
@@ -321,6 +329,22 @@ public class Main extends Application{
 
         }
 
+
+        if (Math.random() < 0.005){
+
+            addPowerUp(  new GameObject(new Circle(5,5,5,Color.BLACK)), Math.random()*600, 600);
+
+        }
+        for (GameObject x:powerups) {
+            if (x.isColliding(player)){
+
+                powerup = true;
+                root.getChildren().remove(x.getView());
+            }
+
+        }
+
+
 //_________________________TESTING OF METHODS_______________________//
 
         // testing av hp system
@@ -387,7 +411,7 @@ public class Main extends Application{
                 Skudd bullet = new Skudd();
 
                 // POWERUPS , skriv in true ini der så kan man aktivere de, denne gjør at du skyter 4 kuler ekstra
-                if(true){
+                if(powerup){
                     if (equalsX(player, new Point2D(0.1,0)) || equalsX(player,new Point2D(-0.1,0))){
                         Skudd bullet1 = new Skudd();
                         Skudd bullet2 = new Skudd();
