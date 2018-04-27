@@ -28,6 +28,7 @@ import java.util.List;
 
 import static javafx.scene.paint.Color.BLACK;
 import static javafx.scene.paint.Color.RED;
+import static javafx.scene.paint.Color.color;
 
 public class Main extends Application{
 
@@ -37,6 +38,8 @@ public class Main extends Application{
     private GameObject wall2;
     private GameObject wall3;
     private GameObject wall4;
+    private boolean powerup;
+    private  GameObject up;
 
 
 
@@ -44,6 +47,7 @@ public class Main extends Application{
     List<Fiender> fiender = new ArrayList<>();
     List<Skudd> bullets = new ArrayList<>();
     List<GameObject> walls = new ArrayList<>();
+    List<GameObject> powerups = new ArrayList<>();
     List<FiendeSkudd> Enemybullets = new ArrayList<>();
 
 
@@ -161,6 +165,13 @@ public class Main extends Application{
     }
 
 
+    private void addPowerUp(GameObject ups, double x, double y){
+        powerups.add(ups);
+        addGameObject(ups,x,y);
+
+    }
+
+
 
     // GameObject er Parent klassen til alle spill objektene
 
@@ -232,7 +243,6 @@ public class Main extends Application{
                     fbullet.update();
                 }
                 if (fbullet.isColliding(wall1) || fbullet.isColliding(wall2) || fbullet.isColliding(wall3) || fbullet.isColliding(wall4)) {
-                    // bullet.setVelocity(new Point2D(Math.random()*10-5,Math.random()*10-5));
                     if (Math.random() * 13 - 5 < 4) {
                         fbullet.setVelocity(new Point2D(fbullet.getVelocity().getX() + Math.random() * 10 - 5, fbullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
                     } else {
@@ -269,8 +279,8 @@ public class Main extends Application{
 
         for (Fiender fiende1 : fiender) {
             if (fiende1.isColliding(player) || fiende1.isColliding(wall1) || fiende1.isColliding(wall2) || fiende1.isColliding(wall3) || fiende1.isColliding(wall4)) {
-                // fiende1.setVelocity(new Point2D(Math.random()*4-2,Math.random()*4-2));
-                fiende1.setVelocity(new Point2D(fiende1.getVelocity().getX() + Math.random() * 2 - 1, fiende1.getVelocity().getY() + Math.random() * 2 - 1).multiply(-1));
+
+                fiende1.setVelocity(fiende1.getVelocity().multiply(-5));
 
 
 
@@ -307,6 +317,23 @@ public class Main extends Application{
             addEnemy((new Fiender(100,10,true,(new Rectangle(20,20, RED)))),300,250 /*Math.random() * 600, Math.random() * 600*/);
 
         }
+
+
+        if (Math.random() < 0.005){
+
+            addPowerUp(  new GameObject(new Circle(5,5,5,Color.BLACK)), Math.random()*600, 600);
+
+        }
+        for (GameObject x:powerups) {
+            if (x.isColliding(player)){
+
+                powerup = true;
+                root.getChildren().remove(x.getView());
+            }
+
+        }
+
+
 
 //_________________________TESTING OF METHODS_______________________//
 
@@ -377,7 +404,7 @@ public class Main extends Application{
 
 
                 // POWERUPS , skriv in true ini der så kan man aktivere de, denne gjør at du skyter 4 kuler ekstra
-                if(true){
+                if(powerup){
 
 
                     if (equalsX(player, new Point2D(0.1,0)) || equalsX(player,new Point2D(-0.1,0))){
