@@ -6,8 +6,6 @@ class Skudd extends GameObject {
 
     Skudd() {
         super(new Circle(2.5, 2.5, 2.5, BLACK));
-
-
     }
 
 }

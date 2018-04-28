@@ -19,9 +19,6 @@ public class Fiender extends GameObject{
         this.hp = hp;
         this.damage = damage;
         this.alive = alive;
-
-
-
     }
 
     public void FSM (GameObject object , Fiender object2) {
@@ -44,13 +41,7 @@ public class Fiender extends GameObject{
 
                 break;
         }
-
-
-
     }
-
-
-
 
 
     public void setState(int state) {
@@ -67,7 +58,6 @@ public class Fiender extends GameObject{
         if (Math.pow((object.getX() - object2.getX()),2) *0.001 >= 30 || Math.pow((object.getY() - object2.getY()),2)* 0.001 >= 30 ) {
 
             setState(1);
-
         }
     }
 
@@ -80,9 +70,7 @@ public class Fiender extends GameObject{
 
         if (Math.pow((object.getX() - object2.getX()),2) *0.001 <= 5 || Math.pow((object.getY() - object2.getY()),2)* 0.001 <= 5 ) {
             setState(0);
-
         }
-
     }
 
 
@@ -116,8 +104,4 @@ public class Fiender extends GameObject{
     public void setAlive(boolean alive) {
         this.alive = alive;
     }
-
-
-
-
 }

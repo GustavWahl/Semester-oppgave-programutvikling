@@ -6,9 +6,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Circle;
 
-
-
-
 public class Spiller extends GameObject{
 
     private double hp;
@@ -18,19 +15,12 @@ public class Spiller extends GameObject{
     private Node face;
 
 
-
-
-
     public Spiller(double hp, int damage, int score, String name, Node view){
         super(view);
         this.hp = hp;
         this.damage = damage;
         this.score = score;
         this.name = name;
-
-
-
-
     }
 
     public void setHp(double hp){
@@ -44,13 +34,11 @@ public class Spiller extends GameObject{
         this.damage = damage;
     }
 
-    public void setScore(int score) {
-        this.score = score;
+    public void setScore() {
+        score++;
     }
-
-
-
-
-
-
+    
+    public int getScore(){
+        return score;
+    }
 }
