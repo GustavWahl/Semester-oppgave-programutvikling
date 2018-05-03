@@ -1,22 +1,27 @@
+
+
 import javafx.animation.AnimationTimer;
+import javafx.animation.Animation;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import  javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.List;
+
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Label;
@@ -24,8 +29,13 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
-import static javafx.scene.paint.Color.RED;
+
+import static javafx.scene.paint.Color.BLACK;
+
+import javafx.util.Duration;
 import javafx.stage.Screen;
+
+
 
 public class Main extends Application{
     
@@ -53,10 +63,18 @@ public class Main extends Application{
     private Button lagre;
     private Button quit;
     private AnimationTimer timer;
+    private AnimationTimer timer2;
     private boolean powerup;
+
+    private static final Image image = new Image("./bilder/testSprite.png");
+    private static final Image playerImage = new Image("./bilder/player.png");
+    private static final Image bossImage = new Image("./bilder/bossTank.png");
+    private static final Image fienderImage = new Image("./bilder/fiender.png");
+
 
     List<Fiender> fiender = new ArrayList<>();
     List<Skudd> bullets = new ArrayList<>();
+    List<GameObject> explosions = new ArrayList<>();
     List<GameObject> walls = new ArrayList<>();
     List<FiendeSkudd> Enemybullets = new ArrayList<>();
     List<GameObject> powerups = new ArrayList<>();
@@ -67,23 +85,7 @@ public class Main extends Application{
     }
 
     
-    //Her lager man designe til spilleren
-    public StackPane lagkarakter() {
 
-        StackPane pane = new StackPane();
-        Rectangle pistol = new Rectangle(3,22,(new Color(0, 0, 0, 1)));
-        Rectangle kropp = new Rectangle(20, 20, (new Color(0.0f, 0.0f, 1.0f, 1.0)));
-        Circle hode = new Circle(10, 15, 12, (new Color(0.3f, 0.6f, 1.0f, 1.0)));
-        Circle flame1 = new Circle(3,3,3);
-        flame1.setFill(new Color(1.0f,0f,0f,1.0f));
-
-        pane.getChildren().addAll(kropp, hode,pistol,flame1);
-        StackPane.setAlignment(pistol, Pos.CENTER_LEFT);
-        StackPane.setAlignment(flame1,Pos.TOP_LEFT);
-        pane.setPrefSize(20, 20);
-
-        return pane;
-    }
 
     public boolean equalsX(GameObject gameObject, Point2D point2D){
 
@@ -106,7 +108,7 @@ public class Main extends Application{
         
         root.setPrefSize(height, width);
 
-        player = new Spiller(100, 10, 0,"Gustav",lagkarakter());
+        player = new Spiller(100, 10, 0,"Gustav",playerAnim(new ImageView(playerImage),0));
         player.setVelocity(new Point2D(0,-0.001));
 
         // (new Rectangle(20,20,Color.BLUE)),(new Circle(5,5,5,(new Color(0.1f,0.3f,1.0f, 1.0))))
@@ -149,6 +151,24 @@ public class Main extends Application{
             }
         };
         timer.start();
+
+
+
+
+       timer2 = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+
+                if(Status == STATUS.SPILL){
+                   explosionTimer();
+                }
+            }
+        };
+
+        timer2.start();
+
+
+
 
         return root;
     }
@@ -224,6 +244,60 @@ public class Main extends Application{
     private void addPowerUp(GameObject ups, double x, double y){
         powerups.add(ups);
         addGameObject(ups,x,y);
+
+    }
+
+    private void bulletExplosion(GameObject s , double x, double y){
+        explosions.add(s);
+        addGameObject(s,x,y);
+
+        
+
+    }
+
+    private void explosionTimer(){
+        for (GameObject ex : explosions) {
+
+            ex.setAlive(false);
+            root.getChildren().remove(ex.getView());
+
+
+        }
+    }
+
+
+
+    private Node playAnimation(ImageView w){
+
+        w.setViewport(new Rectangle2D(0,10,10,10));
+        final Animation animation = new Sprite(w,Duration.millis(500),2,0,10,10,10);
+        animation.setCycleCount(Animation.INDEFINITE);
+        animation.play();
+
+        return w;
+    }
+
+    public Node playerAnim(ImageView p, int minY){
+            //WIP
+        p.setViewport(new Rectangle2D(0, minY, 20, 20));
+        /*final Animation animation = new Sprite(p,Duration.millis(6000),4,4,0,0,20,20);
+        animation.setCycleCount(Animation.INDEFINITE);
+        animation.play();
+
+*/
+        return p;
+    }
+
+    public Node boss(ImageView b, int minY){
+        b.setViewport(new Rectangle2D(0, minY, 60, 60));
+       // final Animation animation = new Sprite(b,Duration.millis(3000),4,4,0,-16,60,60);
+        return b;
+    }
+
+    public Node fiender(ImageView b, int minY){
+        b.setViewport(new Rectangle2D(0, minY, 20, 20));
+        // final Animation animation = new Sprite(b,Duration.millis(3000),4,4,0,-16,60,60);
+        return b;
     }
 
 
@@ -237,15 +311,15 @@ public class Main extends Application{
 
 
     // metoden som oppdaterer spille via en timer i createContent
-    private  void onUpdate(){
-        
-        
-        helse.setText("HP: "+String.valueOf(player.getHp()));
-        score.setText("Score: "+String.valueOf(player.getScore()));
+    private  void onUpdate() {
+
+
+        helse.setText("HP: " + String.valueOf(player.getHp()));
+        score.setText("Score: " + String.valueOf(player.getScore()));
 
         // Disse Foreach'ene går gjennom Arraylistene våre for å kunne sjekke alle fiender og skudd
 
-        for (Skudd bullet: bullets) {
+        for (Skudd bullet : bullets) {
             for (Fiender fiende : fiender) {
                 if (bullet.isColliding(fiende)) {
                     bullet.setAlive(false);
@@ -265,120 +339,134 @@ public class Main extends Application{
                         }catch (Exception e){
 
                         }*/
-                     
+
                         root.getChildren().remove(fiende.getView());
                     }
                 }
             }
-            
-            // kollidering med vegger her bruker vi random for å skape random rikosjett i en random retning som er motsatt av der kulen kom fra, eller at kulen dør
-            if (bullet.isColliding(wall1) || bullet.isColliding(wall2) || bullet.isColliding(wall3) || bullet.isColliding(wall4)) {
-                // bullet.setVelocity(new Point2D(Math.random()*10-5,Math.random()*10-5));
-                if (Math.random()*10-5 < 4) {
-                    bullet.setVelocity(new Point2D(bullet.getVelocity().getX() + Math.random() * 10 - 5, bullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
-                }else {
-                    bullet.setAlive(false);
-                    root.getChildren().remove(bullet.getView());
 
-                }
+
+            if (bullet.isColliding(wall1) || bullet.isColliding(wall2) || bullet.isColliding(wall3) || bullet.isColliding(wall4)) {
+
+                bulletExplosion((new GameObject(new Circle(10, 10, 10, BLACK))), bullet.getX(), bullet.getY());
+
+                bullet.setAlive(false);
+                root.getChildren().remove(bullet.getView());
+                //bullet.setVelocity(new Point2D(bullet.getVelocity().getX() + Math.random() * 10 - 5, bullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
+
 
             }
+
+
         }
 
+
+
+
+
+
         for (Fiender fiende3 : fiender) {
-            for (FiendeSkudd fbullet : Enemybullets) {
-                if (fbullet.isColliding(player)) {
-                    player.setHp(player.getHp() - 10);
-                    fbullet.setAlive(false);
-                    root.getChildren().remove(fbullet.getView());
-                    fbullet.update();
-                }
-                if (fbullet.isColliding(wall1) || fbullet.isColliding(wall2) || fbullet.isColliding(wall3) || fbullet.isColliding(wall4)) {
-                    // bullet.setVelocity(new Point2D(Math.random()*10-5,Math.random()*10-5));
-                    if (Math.random() * 13 - 5 < 4) {
-                        fbullet.setVelocity(new Point2D(fbullet.getVelocity().getX() + Math.random() * 10 - 5, fbullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
-                    } else {
+                for (FiendeSkudd fbullet : Enemybullets) {
+                    if (fbullet.isColliding(player)) {
+                        player.setHp(player.getHp() - 10);
                         fbullet.setAlive(false);
                         root.getChildren().remove(fbullet.getView());
+                        fbullet.update();
+                    }
+                    if (fbullet.isColliding(wall1) || fbullet.isColliding(wall2) || fbullet.isColliding(wall3) || fbullet.isColliding(wall4)) {
+
+                        if (Math.random() * 13 - 5 < 4) {
+                            fbullet.setAlive(false);
+                            root.getChildren().remove(fbullet.getView());
+                            //fbullet.setVelocity(new Point2D(fbullet.getVelocity().getX() + Math.random() * 10 - 5, fbullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
+                        } else {
+                            fbullet.setAlive(false);
+                            root.getChildren().remove(fbullet.getView());
+                        }
+                    }
+                }
+
+                if (fiende3.getDecideActiveState() == 0) {
+
+                    if (Math.random() < 0.1) {
+
+                        FiendeSkudd fiendeBullet2 = new FiendeSkudd();
+                        addFiendeBullet(fiendeBullet2, fiende3.getView().getTranslateX(), fiende3.getView().getTranslateY());
+                        fiendeBullet2.setVelocity((fiende3.getVelocity().normalize().multiply(3)));
+
+                        fiendeBullet2.update();
+                    }
+                }
+
+                fiende3.FSM(player, fiende3);
+                //   fiende3.update();
+            }
+
+
+            for (Fiender fiende1 : fiender) {
+                if (fiende1.isColliding(player) || fiende1.isColliding(wall1) || fiende1.isColliding(wall2) || fiende1.isColliding(wall3) || fiende1.isColliding(wall4)) {
+                    fiende1.setVelocity(new Point2D(fiende1.getVelocity().getX() + Math.random() * 2 - 1, fiende1.getVelocity().getY() + Math.random() * 2 - 1).multiply(-1));
+
+                    fiende1.update();
+
+                    player.setHp(player.getHp() - 1);
+                    if (player.getHp() <= 0) {
+                        System.out.println("Game Over");
                     }
                 }
             }
-            
-            if (fiende3.getDecideActiveState() == 0) {
 
-                if (Math.random() < 0.1) {
 
-                    FiendeSkudd fiendeBullet2 = new FiendeSkudd();
-                    addFiendeBullet(fiendeBullet2, fiende3.getView().getTranslateX(), fiende3.getView().getTranslateY());
-                    fiendeBullet2.setVelocity((fiende3.getVelocity().normalize().multiply(3)));
+            //her fjerner man kuller og fiender hvis de er døde
 
-                    fiendeBullet2.update();
+            Enemybullets.removeIf(FiendeSkudd::isDead);
+            bullets.removeIf(Skudd::isDead);
+            fiender.removeIf(Fiender::isDead);
+            explosions.removeIf(GameObject::isDead);
+            bullets.forEach(Skudd::update);
+            fiender.forEach(Fiender::update);
+            Enemybullets.forEach(FiendeSkudd::update);
+
+
+            player.update();
+
+
+
+            if (player.getScore() >= 32 && player.getScore() <= 33 && fiender.isEmpty()) {
+                addEnemy((new Fiender(1000, 10, true, boss(new ImageView(bossImage), 128))), 900, 250 /*Math.random() * 600, Math.random() * 600*/);
+
+            }
+
+
+            if (fiender.isEmpty()) {
+                addEnemy((new Fiender(100, 10, true, fiender((new ImageView(fienderImage)),40))), 300, 250 /*Math.random() * 600, Math.random() * 600*/);
+            }
+
+            if (Math.random() < 0.005) {
+
+                addPowerUp(new GameObject(playAnimation(new ImageView(image))), Math.random() * 600, Math.random() * 600);
+
+            }
+
+            for (GameObject x : powerups) {
+                if (x.isColliding(player)) {
+
+                    powerup = true;
+                    root.getChildren().remove(x.getView());
                 }
+
             }
-            
-            fiende3.FSM(player, fiende3);
-            //   fiende3.update();
-        }
+            //_________________________TESTING OF METHODS_______________________//
 
-
-        for (Fiender fiende1 : fiender) {
-            if (fiende1.isColliding(player) || fiende1.isColliding(wall1) || fiende1.isColliding(wall2) || fiende1.isColliding(wall3) || fiende1.isColliding(wall4)) {
-                // fiende1.setVelocity(new Point2D(Math.random()*4-2,Math.random()*4-2));
-                fiende1.setVelocity(new Point2D(fiende1.getVelocity().getX() + Math.random() * 2 - 1, fiende1.getVelocity().getY() + Math.random() * 2 - 1).multiply(-1));
-
-                fiende1.update();
-
-                player.setHp(player.getHp() - 1);
-                if (player.getHp() <= 0) {
-                    System.out.println("Game Over");
-                }
-            }
-        }
-
-
-        //her fjerner man kuller og fiender hvis de er døde
-
-        Enemybullets.removeIf(FiendeSkudd::isDead);
-        bullets.removeIf(Skudd::isDead);
-        fiender.removeIf(Fiender::isDead);
-
-        bullets.forEach(Skudd::update);
-        fiender.forEach(Fiender::update);
-        Enemybullets.forEach(FiendeSkudd:: update);
-
-
-        player.update();
-
-        //her leger man til fiender, vi bruker konstruktøren fra klassen fiender for å kunne putte inn verdier , da kan vi også gjøre fiendene sterker over tid
-
-        if (fiender.isEmpty()){
-            addEnemy((new Fiender(100,10,true,(new Rectangle(20,20, RED)))),300,250 /*Math.random() * 600, Math.random() * 600*/);
-        }
-        
-        if (Math.random() < 0.005){
-
-            addPowerUp(  new GameObject(new Circle(5,5,5,Color.BLACK)), Math.random()*600, 600);
-        }
-        
-        for (GameObject x:powerups) {
-            if (x.isColliding(player)){
-
-                powerup = true;
-                root.getChildren().remove(x.getView());
-            }
-
-        }
-        //_________________________TESTING OF METHODS_______________________//
-
-        // testing av hp system
-        //  System.out.println(player.getHp());
-        // System.out.println((player.getView().getTranslateX() - 300)+ "+" + (player.getView().getTranslateY()- 250));
+            // testing av hp system
+            //  System.out.println(player.getHp());
+            // System.out.println((player.getView().getTranslateX() - 300)+ "+" + (player.getView().getTranslateY()- 250));
 
        /*for (Fiender fiende5 : fiender) {
           System.out.println( Math.pow((player.getX() - (fiende5.getX())),2)*0.001);
            System.out.println( Math.pow((player.getY() - (fiende5.getY())),2)*0.001);
         }*/
-    }
+        }
 
 
     @Override
@@ -427,51 +515,7 @@ public class Main extends Application{
                     }
 
 
-                    if (e.getCode() == KeyCode.SPACE) {
 
-                        Skudd bullet = new Skudd();
-
-                        // POWERUPS , skriv in true ini der så kan man aktivere de, denne gjør at du skyter 4 kuler ekstra
-                        if(powerup){
-                            if (equalsX(player, new Point2D(0.1,0)) || equalsX(player,new Point2D(-0.1,0))){
-                                Skudd bullet1 = new Skudd();
-                                Skudd bullet2 = new Skudd();
-                                Skudd bullet3 = new Skudd();
-                                Skudd bullet4 = new Skudd();
-                                bullet1.setVelocity(player.getVelocity().add(0, 0.01).normalize().multiply(10));
-                                bullet2.setVelocity(player.getVelocity().add(0, 0.02).normalize().multiply(10));
-                                addBullet(bullet1, player.getView().getTranslateX(), player.getView().getTranslateY());
-                                addBullet(bullet2, player.getView().getTranslateX(), player.getView().getTranslateY());
-                                bullet3.setVelocity(player.getVelocity().add(0, -0.01).normalize().multiply(10));
-                                bullet4.setVelocity(player.getVelocity().add(0, -0.02).normalize().multiply(10));
-                                addBullet(bullet3, player.getView().getTranslateX(), player.getView().getTranslateY());
-                                addBullet(bullet4, player.getView().getTranslateX(), player.getView().getTranslateY());
-
-                            } else if (equalsY(player, new Point2D(0,0.1)) || equalsY(player,new Point2D(0,-0.1))){
-
-                                Skudd bullet1 = new Skudd();
-                                Skudd bullet2 = new Skudd();
-                                Skudd bullet3 = new Skudd();
-                                Skudd bullet4 = new Skudd();
-                                bullet1.setVelocity(player.getVelocity().add(0.01, 0).normalize().multiply(10));
-                                bullet2.setVelocity(player.getVelocity().add(0.02, 0).normalize().multiply(10));
-                                addBullet(bullet1, player.getView().getTranslateX(), player.getView().getTranslateY());
-                                addBullet(bullet2, player.getView().getTranslateX(), player.getView().getTranslateY());
-                                bullet3.setVelocity(player.getVelocity().add(-0.01, 0).normalize().multiply(10));
-                                bullet4.setVelocity(player.getVelocity().add(-0.02, 0).normalize().multiply(10));
-                                addBullet(bullet3, player.getView().getTranslateX(), player.getView().getTranslateY());
-                                addBullet(bullet4, player.getView().getTranslateX(), player.getView().getTranslateY());
-                            }
-                        }
-
-                        bullet.setVelocity(player.getVelocity().normalize().multiply(10));
-                        addBullet(bullet, player.getView().getTranslateX(), player.getView().getTranslateY());
-
-                        // Også Powerup
-                        if(false){
-                            bullet.setVelocity(player.getVelocity().normalize().multiply(30));
-                        }
-                    }
                 }
 
                 if(e.getCode() == KeyCode.P){
@@ -493,6 +537,7 @@ public class Main extends Application{
                 quit.setOnAction((ActionEvent ek) ->{
                     Status = STATUS.MENY;
                     timer.stop();
+                    timer2.stop();
                     fiender.clear();
                     bullets.clear();
                     powerup = false;
@@ -530,6 +575,53 @@ public class Main extends Application{
                         case S:
                             player.setVelocity(new Point2D(0,0.1));
                             break;
+
+                        case SPACE:
+
+                            Skudd bullet = new Skudd(2.5,2.5,2.5,BLACK);
+
+
+                            if(powerup){
+                                if (equalsX(player, new Point2D(0.1,0)) || equalsX(player,new Point2D(-0.1,0))){
+                                    Skudd bullet1 = new Skudd(2.5,2.5,2.5,BLACK);
+                                    Skudd bullet2 = new Skudd(2.5,2.5,2.5,BLACK);
+                                    Skudd bullet3 = new Skudd(2.5,2.5,2.5,BLACK);
+                                    Skudd bullet4 = new Skudd(2.5,2.5,2.5,BLACK);
+                                    bullet1.setVelocity(player.getVelocity().add(0, 0.01).normalize().multiply(10));
+                                    bullet2.setVelocity(player.getVelocity().add(0, 0.02).normalize().multiply(10));
+                                    addBullet(bullet1, player.getView().getTranslateX(), player.getView().getTranslateY());
+                                    addBullet(bullet2, player.getView().getTranslateX(), player.getView().getTranslateY());
+                                    bullet3.setVelocity(player.getVelocity().add(0, -0.01).normalize().multiply(10));
+                                    bullet4.setVelocity(player.getVelocity().add(0, -0.02).normalize().multiply(10));
+                                    addBullet(bullet3, player.getView().getTranslateX(), player.getView().getTranslateY());
+                                    addBullet(bullet4, player.getView().getTranslateX(), player.getView().getTranslateY());
+
+                                } else if (equalsY(player, new Point2D(0,0.1)) || equalsY(player,new Point2D(0,-0.1))){
+
+                                    Skudd bullet1 = new Skudd(2.5,2.5,2.5,BLACK);
+                                    Skudd bullet2 = new Skudd(2.5,2.5,2.5,BLACK);
+                                    Skudd bullet3 = new Skudd(2.5,2.5,2.5,BLACK);
+                                    Skudd bullet4 = new Skudd(2.5,2.5,2.5,BLACK);
+                                    bullet1.setVelocity(player.getVelocity().add(0.01, 0).normalize().multiply(10));
+                                    bullet2.setVelocity(player.getVelocity().add(0.02, 0).normalize().multiply(10));
+                                    addBullet(bullet1, player.getView().getTranslateX(), player.getView().getTranslateY());
+                                    addBullet(bullet2, player.getView().getTranslateX(), player.getView().getTranslateY());
+                                    bullet3.setVelocity(player.getVelocity().add(-0.01, 0).normalize().multiply(10));
+                                    bullet4.setVelocity(player.getVelocity().add(-0.02, 0).normalize().multiply(10));
+                                    addBullet(bullet3, player.getView().getTranslateX(), player.getView().getTranslateY());
+                                    addBullet(bullet4, player.getView().getTranslateX(), player.getView().getTranslateY());
+                                }
+                            }
+
+                            bullet.setVelocity(player.getVelocity().normalize().multiply(10));
+                            addBullet(bullet, player.getView().getTranslateX(), player.getView().getTranslateY());
+
+                            // Også Powerup
+                            if(false){
+                                bullet.setVelocity(player.getVelocity().normalize().multiply(30));
+                            }
+                        break;
+
                         default:
                             break;
                     }

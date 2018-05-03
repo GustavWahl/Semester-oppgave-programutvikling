@@ -1,5 +1,7 @@
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -12,7 +14,9 @@ public class Spiller extends GameObject{
     private int damage;
     private int score;
     private String name;
-    private Node face;
+    private int minY;
+
+
 
 
     public Spiller(double hp, int damage, int score, String name, Node view){
@@ -37,8 +41,10 @@ public class Spiller extends GameObject{
     public void setScore() {
         score++;
     }
-    
+
     public int getScore(){
         return score;
     }
+
+
 }
