@@ -39,12 +39,17 @@ import javafx.stage.Screen;
 
 public class Main extends Application{
     
+    public Main() {
+        createPause();
+    }
+    
     private enum STATUS{
         SPILL,
+        LOAD,
         MENY
     }
     
-    private STATUS Status = STATUS.SPILL;
+    private STATUS Status = STATUS.MENY;
 
     private Pane root;
     private Spiller player;
@@ -54,6 +59,7 @@ public class Main extends Application{
     private Label helse;
     private Label score;
     private Label tid;
+    private Label loadNy;
     private GameObject wall1;
     private GameObject wall2;
     private GameObject wall3;
@@ -61,16 +67,20 @@ public class Main extends Application{
     private Button strt;
     private Button fortsett;
     private Button lagre;
+    private Button hScore;
     private Button quit;
+    private Button load;
     private AnimationTimer timer;
     private AnimationTimer timer2;
     private boolean powerup;
 
-    private static final Image image = new Image("./bilder/testSprite.png");
-    private static final Image playerImage = new Image("./bilder/player.png");
-    private static final Image bossImage = new Image("./bilder/bossTank.png");
-    private static final Image fienderImage = new Image("./bilder/fiender.png");
-
+    private final Image IMAGE = new Image("bilder/testSprite.png");
+    private final Image PLAYERIMAGE = new Image("bilder/player.png");
+    private final Image BOSSIMAGE = new Image("bilder/bosstank.png");
+    private final Image FIENDERIMAGE = new Image("bilder/fiender.png");
+    
+    save filen = new save();
+    load loader = new load();
 
     List<Fiender> fiender = new ArrayList<>();
     List<Skudd> bullets = new ArrayList<>();
@@ -83,8 +93,6 @@ public class Main extends Application{
 
         launch(args);
     }
-
-    
 
 
     public boolean equalsX(GameObject gameObject, Point2D point2D){
@@ -107,13 +115,22 @@ public class Main extends Application{
         double height = screenBounds.getHeight();
         
         root.setPrefSize(height, width);
-
-        player = new Spiller(100, 10, 0,"Gustav",playerAnim(new ImageView(playerImage),0));
-        player.setVelocity(new Point2D(0,-0.001));
+        
+        if(Status == STATUS.SPILL){
+            player = new Spiller(100, 10, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0));
+            player.setVelocity(new Point2D(0,-0.001));
+            addGameObject(player, width/2, height/2);
+        }else if(Status == STATUS.LOAD){
+            loader.apneFil();
+            loader.lesfil();
+            player = new Spiller(loader.getHp(), 10, loader.getScore(),"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0));
+            player.setVelocity(new Point2D(0,-0.001));
+            addGameObject(player, loader.getX(), loader.getY());
+            loader.lukkFil();
+        }       
 
         // (new Rectangle(20,20,Color.BLUE)),(new Circle(5,5,5,(new Color(0.1f,0.3f,1.0f, 1.0))))
 
-        addGameObject(player, 300, 300);
 
         wall1 = new GameObject(new Rectangle(width,10,new Color(0, 0, 0, 0.4824)));
         wall2 = new GameObject(new Rectangle(width,10,new Color(0, 0, 0, 0.4824)));
@@ -145,7 +162,7 @@ public class Main extends Application{
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if(Status == STATUS.SPILL){
+                if(Status == STATUS.SPILL || Status == STATUS.LOAD){
                     onUpdate();
                 }
             }
@@ -159,7 +176,7 @@ public class Main extends Application{
             @Override
             public void handle(long now) {
 
-                if(Status == STATUS.SPILL){
+                if(Status == STATUS.SPILL || Status == STATUS.LOAD){
                    explosionTimer();
                 }
             }
@@ -167,38 +184,27 @@ public class Main extends Application{
 
         timer2.start();
 
-
-
-
         return root;
     }
     
     public Parent createMeny(){
-        strt = new Button("Start Nytt Spill");
         
-        javafx.scene.control.Button hScore = new javafx.scene.control.Button();
-        hScore.setText("High Score");
-        hScore.setOnAction((ActionEvent event) -> {
-            System.out.println("Laster High");
-        });
-        
-        javafx.scene.control.Button load = new javafx.scene.control.Button();
-        load.setText("Load");
-        load.setOnAction((ActionEvent event) -> {
-            System.out.println("Laster"); 
-        });
+        loadNy = new Label("Starter nytt spill");
+        strt = new Button("Start Spill");
+        hScore = new Button("Vis loaden");
+        load = new Button("Last lagret spill");
         
         meny = new VBox();
         meny.setPrefSize(400, 300);
         meny.setSpacing(30);
         meny.setAlignment(Pos.CENTER);
         
-        meny.getChildren().addAll(strt, hScore, load);
+        meny.getChildren().addAll(loadNy, strt, hScore, load);
         
         return meny;
     }
     
-    public Parent createPause(){
+    public void createPause(){
         pause = new VBox(20);
         
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
@@ -215,8 +221,6 @@ public class Main extends Application{
         quit = new Button("Avslutt");
         
         pause.getChildren().addAll(fortsett, lagre, quit);
-        
-        return pause;
     }
 
 
@@ -251,8 +255,6 @@ public class Main extends Application{
         explosions.add(s);
         addGameObject(s,x,y);
 
-        
-
     }
 
     private void explosionTimer(){
@@ -260,8 +262,6 @@ public class Main extends Application{
 
             ex.setAlive(false);
             root.getChildren().remove(ex.getView());
-
-
         }
     }
 
@@ -282,9 +282,7 @@ public class Main extends Application{
         p.setViewport(new Rectangle2D(0, minY, 20, 20));
         /*final Animation animation = new Sprite(p,Duration.millis(6000),4,4,0,0,20,20);
         animation.setCycleCount(Animation.INDEFINITE);
-        animation.play();
-
-*/
+        animation.play();*/
         return p;
     }
 
@@ -312,8 +310,7 @@ public class Main extends Application{
 
     // metoden som oppdaterer spille via en timer i createContent
     private  void onUpdate() {
-
-
+        
         helse.setText("HP: " + String.valueOf(player.getHp()));
         score.setText("Score: " + String.valueOf(player.getScore()));
 
@@ -353,16 +350,8 @@ public class Main extends Application{
                 bullet.setAlive(false);
                 root.getChildren().remove(bullet.getView());
                 //bullet.setVelocity(new Point2D(bullet.getVelocity().getX() + Math.random() * 10 - 5, bullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
-
-
             }
-
-
         }
-
-
-
-
 
 
         for (Fiender fiende3 : fiender) {
@@ -388,7 +377,7 @@ public class Main extends Application{
 
                 if (fiende3.getDecideActiveState() == 0) {
 
-                    if (Math.random() < 0.1) {
+                    if (Enemybullets.isEmpty()) {
 
                         FiendeSkudd fiendeBullet2 = new FiendeSkudd();
                         addFiendeBullet(fiendeBullet2, fiende3.getView().getTranslateX(), fiende3.getView().getTranslateY());
@@ -410,9 +399,9 @@ public class Main extends Application{
                     fiende1.update();
 
                     player.setHp(player.getHp() - 1);
-                    if (player.getHp() <= 0) {
+                    /*if (player.getHp() <= 0) {
                         System.out.println("Game Over");
-                    }
+                    }*/
                 }
             }
 
@@ -433,19 +422,16 @@ public class Main extends Application{
 
 
             if (player.getScore() >= 32 && player.getScore() <= 33 && fiender.isEmpty()) {
-                addEnemy((new Fiender(1000, 10, true, boss(new ImageView(bossImage), 128))), 900, 250 /*Math.random() * 600, Math.random() * 600*/);
-
+                addEnemy((new Fiender(1000, 10, true, boss(new ImageView(BOSSIMAGE), 128))), 900, 250 /*Math.random() * 600, Math.random() * 600*/);
             }
 
 
             if (fiender.isEmpty()) {
-                addEnemy((new Fiender(100, 10, true, fiender((new ImageView(fienderImage)),40))), 300, 250 /*Math.random() * 600, Math.random() * 600*/);
+                addEnemy((new Fiender(100, 10, true, fiender((new ImageView(FIENDERIMAGE)),40))), 300, 250 /*Math.random() * 600, Math.random() * 600*/);
             }
 
             if (Math.random() < 0.005) {
-
-                addPowerUp(new GameObject(playAnimation(new ImageView(image))), Math.random() * 600, Math.random() * 600);
-
+                addPowerUp(new GameObject(playAnimation(new ImageView(IMAGE))), Math.random() * 600, Math.random() * 600);
             }
 
             for (GameObject x : powerups) {
@@ -454,7 +440,6 @@ public class Main extends Application{
                     powerup = true;
                     root.getChildren().remove(x.getView());
                 }
-
             }
             //_________________________TESTING OF METHODS_______________________//
 
@@ -466,28 +451,50 @@ public class Main extends Application{
           System.out.println( Math.pow((player.getX() - (fiende5.getX())),2)*0.001);
            System.out.println( Math.pow((player.getY() - (fiende5.getY())),2)*0.001);
         }*/
-        }
+    }
 
 
     @Override
     public void start(Stage stage) throws Exception {
         
+
         Scene start = new Scene(createMeny());
         
         stage.setScene(start);
         
-        // Dette er scenen, vi puter inn createcontent i setScene.
-        strt.setOnAction((ActionEvent event) -> {
-            stage.setScene(new Scene(createContent()));  
+        hScore.setOnAction((ActionEvent event) -> {
+            loader.apneFil();
+            loader.lesfil();
+            loader.lukkFil();
+        });
         
+        load.setOnAction((ActionEvent ev) ->{
+            if(Status == STATUS.LOAD){
+                Status = STATUS.MENY;
+                loadNy.setText("Starter nytt spill");
+                load.setText("Last lagret spill");
+            }else{
+                Status = STATUS.LOAD;
+                loadNy.setText("Laster lagret spill");
+                load.setText("Fjern lagret spill");
+            }
+        });
+        
+        strt.setOnAction((ActionEvent event) -> {
+            
+            if(Status == STATUS.LOAD){
+                stage.setScene(new Scene(createContent()));
+            }else if(Status == STATUS.MENY){
+                Status = STATUS.SPILL;
+                stage.setScene(new Scene(createContent()));
+            }
+            
             Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 
             stage.setMaximized(true);
-            
-            Status = STATUS.SPILL;
 
             stage.getScene().setOnKeyPressed((KeyEvent e) ->{
-                if(Status == STATUS.SPILL){
+                if(Status == STATUS.SPILL || Status == STATUS.LOAD){
 
                     if (null != e.getCode()) //dette er bevegelse , Point2D blir brukt dette er en farts vektor og vi har x, -x, y, -y
                     //Keycode er satt opp mot en lambda metode som gjør at når man presser en tast eller releaser den(nedenfor) så gjøres det en handling
@@ -513,15 +520,12 @@ public class Main extends Application{
                         default:
                             break;
                     }
-
-
-
                 }
 
                 if(e.getCode() == KeyCode.P){
-                    if(Status == STATUS.SPILL){
+                    if(Status == STATUS.SPILL || Status == STATUS.LOAD){
                         Status = STATUS.MENY;
-                        root.getChildren().add(createPause());
+                        root.getChildren().add(pause);
                         stage.show();
                     }else{
                         Status = STATUS.SPILL;
@@ -529,13 +533,21 @@ public class Main extends Application{
                     }
                 }
                 
-                fortsett.setOnAction((ActionEvent e1) -> {
+                fortsett.setOnAction((ActionEvent eo) -> {
                     Status = STATUS.SPILL;
                     root.getChildren().removeAll(pause);
                 });
                 
+                lagre.setOnAction((ActionEvent ej) -> {
+                    filen.apneFil();
+                    filen.lagreData(player.getHp(), player.getScore(), player.getView().getTranslateX(), player.getView().getTranslateY());
+                    filen.lukkFil();
+                });
+                
                 quit.setOnAction((ActionEvent ek) ->{
                     Status = STATUS.MENY;
+                    loadNy.setText("Starter nytt spill");
+                    load.setText("Last lagret spill");
                     timer.stop();
                     timer2.stop();
                     fiender.clear();
@@ -561,7 +573,7 @@ public class Main extends Application{
             */
 
             stage.getScene().setOnKeyReleased(e ->{
-                if(Status == STATUS.SPILL){
+                if(Status == STATUS.SPILL || Status == STATUS.LOAD){
                     if (null != e.getCode())switch (e.getCode()) {
                         case A:
                             player.setVelocity(new Point2D(-0.1,0));

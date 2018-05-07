@@ -45,6 +45,4 @@ public class Spiller extends GameObject{
     public int getScore(){
         return score;
     }
-
-
 }
