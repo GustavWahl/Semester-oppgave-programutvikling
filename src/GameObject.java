@@ -7,7 +7,7 @@ public class GameObject {
 
     private Node view;
     private Point2D velocity = new Point2D(0,0);
-
+    private int rotate;
 
 
     private boolean alive = true;
@@ -22,7 +22,6 @@ public class GameObject {
         this.velocity = velocity;
     }
 
-    // Node gjør sånn at vi kan se objectet
     public Node getView() {
         return view;
     }
@@ -60,15 +59,19 @@ public class GameObject {
         view.setTranslateY(view.getTranslateY() + velocity.getY());
     }
 
-    public void rotateRight(){
-        view.setRotate(view.getRotate() + 45);
-        //  setVelocity(new Point2D(Math.cos(Math.toRadians(getRotate())), Math.sin(Math.toRadians(getRotate()))));
+    public void setRotateVar(int rotate){
+        this.rotate = rotate;
     }
 
-    public void rotateLeft() {
-        view.setRotate(view.getRotate() - 45);
-        //setVelocity(new Point2D(Math.cos(Math.toRadians(getRotate())), Math.sin(Math.toRadians(getRotate()))));
+    public void rotateRight(){
+        view.setRotate(view.getRotate() + rotate);
+
     }
+
+    public void rotate(double r){
+        view.setRotate(view.getRotate() + r);
+    }
+
 
     public Boolean isColliding(GameObject other){
         return getView().getBoundsInParent().intersects(other.getView().getBoundsInParent());

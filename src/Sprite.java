@@ -24,7 +24,7 @@ public class Sprite extends Transition{
        this.width = width;
        this.height = height;
 
-      // setStatus(Status.PAUSED);
+
        setCycleDuration(duration);
        setInterpolator(Interpolator.LINEAR);
 

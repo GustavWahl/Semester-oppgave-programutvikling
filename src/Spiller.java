@@ -1,12 +1,5 @@
-import javafx.geometry.Point2D;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Circle;
+
 
 public class Spiller extends GameObject{
 
@@ -14,7 +7,6 @@ public class Spiller extends GameObject{
     private int damage;
     private int score;
     private String name;
-    private int minY;
 
 
 
@@ -36,6 +28,10 @@ public class Spiller extends GameObject{
 
     public void setDamage(int damage){
         this.damage = damage;
+    }
+
+    public int getDamage() {
+        return damage;
     }
 
     public void setScore() {

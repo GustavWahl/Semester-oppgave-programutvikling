@@ -82,6 +82,7 @@ public class Main extends Application{
     save filen = new save();
     load loader = new load();
 
+    List<Boss> bosser = new ArrayList<>();
     List<Fiender> fiender = new ArrayList<>();
     List<Skudd> bullets = new ArrayList<>();
     List<GameObject> explosions = new ArrayList<>();
@@ -117,7 +118,7 @@ public class Main extends Application{
         root.setPrefSize(height, width);
         
         if(Status == STATUS.SPILL){
-            player = new Spiller(100, 10, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0));
+            player = new Spiller(100, 34, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0));
             player.setVelocity(new Point2D(0,-0.001));
             addGameObject(player, width/2, height/2);
         }else if(Status == STATUS.LOAD){
@@ -237,7 +238,7 @@ public class Main extends Application{
         fiender.add(fiende);
         addGameObject(fiende,x,y);
 
-        System.out.println(fiende.getDecideActiveState());
+
     }
 
     private void addFiendeBullet(FiendeSkudd bullet, double x, double y){
@@ -248,6 +249,13 @@ public class Main extends Application{
     private void addPowerUp(GameObject ups, double x, double y){
         powerups.add(ups);
         addGameObject(ups,x,y);
+
+    }
+
+    private void addBoss(Boss boss, double x, double y){
+
+        bosser.add(boss);
+        addGameObject(boss,x,y);
 
     }
 
@@ -320,7 +328,7 @@ public class Main extends Application{
             for (Fiender fiende : fiender) {
                 if (bullet.isColliding(fiende)) {
                     bullet.setAlive(false);
-                    fiende.setHp(fiende.getHp() - 34);
+                    fiende.setHp(fiende.getHp() - player.getDamage());
 
                     root.getChildren().remove(bullet.getView());
                     if (fiende.getHp() <= 0) {
@@ -357,7 +365,7 @@ public class Main extends Application{
         for (Fiender fiende3 : fiender) {
                 for (FiendeSkudd fbullet : Enemybullets) {
                     if (fbullet.isColliding(player)) {
-                        player.setHp(player.getHp() - 10);
+                        player.setHp(player.getHp() - 1);
                         fbullet.setAlive(false);
                         root.getChildren().remove(fbullet.getView());
                         fbullet.update();
@@ -377,9 +385,9 @@ public class Main extends Application{
 
                 if (fiende3.getDecideActiveState() == 0) {
 
-                    if (Enemybullets.isEmpty()) {
+                    if (Math.random() <= 0.05) {
 
-                        FiendeSkudd fiendeBullet2 = new FiendeSkudd();
+                        FiendeSkudd fiendeBullet2 = new FiendeSkudd(2.5,2.5,2.5, Color.GREEN);
                         addFiendeBullet(fiendeBullet2, fiende3.getView().getTranslateX(), fiende3.getView().getTranslateY());
                         fiendeBullet2.setVelocity((fiende3.getVelocity().normalize().multiply(3)));
 
@@ -390,6 +398,65 @@ public class Main extends Application{
                 fiende3.FSM(player, fiende3);
                 //   fiende3.update();
             }
+
+
+
+        for (Boss boss1 : bosser) {
+            for (Skudd bullet : bullets) {
+                if (bullet.isColliding(boss1)) {
+                    bullet.setAlive(false);
+                    boss1.setHp(boss1.getHp() - player.getDamage());
+
+                    root.getChildren().remove(bullet.getView());
+                    if (boss1.getHp() <= 0) {
+                        boss1.setAlive(false);
+                        player.setScore();
+
+                        if (boss1.isAlive() != true) {
+
+                            addPowerUp(new GameObject(playAnimation(new ImageView(IMAGE))), boss1.getX(), boss1.getY());
+
+                        }
+
+                        root.getChildren().remove(boss1.getView());
+                    }
+                }
+
+
+            }
+            if (boss1.getDecideActiveState() == 0) {
+
+                if (Math.random() < 0.05) {
+
+                    FiendeSkudd fiendeBullet2 = new FiendeSkudd(5,5,5,Color.GREEN);
+                    FiendeSkudd fiendeBullet3 = new FiendeSkudd(5,5,5,Color.GREEN);
+                    FiendeSkudd fiendeBullet4 = new FiendeSkudd(5,5,5,Color.GREEN);
+                    FiendeSkudd fiendeBullet5 = new FiendeSkudd(5,5,5,Color.GREEN);
+                    FiendeSkudd fiendeBullet6 = new FiendeSkudd(5,5,5,Color.GREEN);
+                    FiendeSkudd fiendeBullet7 = new FiendeSkudd(5,5,5,Color.GREEN);
+                    addFiendeBullet(fiendeBullet2, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
+                    addFiendeBullet(fiendeBullet3, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
+                    addFiendeBullet(fiendeBullet4, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
+                    addFiendeBullet(fiendeBullet5, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
+                    addFiendeBullet(fiendeBullet6, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
+                    addFiendeBullet(fiendeBullet7, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
+
+                    fiendeBullet2.setVelocity(new Point2D(-5,0));
+                    fiendeBullet3.setVelocity(new Point2D(-4,3));
+                    fiendeBullet4.setVelocity(new Point2D(-2,5));
+                    fiendeBullet5.setVelocity(new Point2D(2,5));
+                    fiendeBullet6.setVelocity(new Point2D(4,3));
+                    fiendeBullet7.setVelocity(new Point2D(5,0));
+
+
+                    fiendeBullet2.update();
+                }
+            }
+
+
+            boss1.FSM(player,boss1);
+            boss1.update();
+        }
 
 
             for (Fiender fiende1 : fiender) {
@@ -408,6 +475,7 @@ public class Main extends Application{
 
             //her fjerner man kuller og fiender hvis de er døde
 
+            bosser.removeIf(Boss::isDead);
             Enemybullets.removeIf(FiendeSkudd::isDead);
             bullets.removeIf(Skudd::isDead);
             fiender.removeIf(Fiender::isDead);
@@ -421,18 +489,16 @@ public class Main extends Application{
 
 
 
-            if (player.getScore() >= 32 && player.getScore() <= 33 && fiender.isEmpty()) {
-                addEnemy((new Fiender(1000, 10, true, boss(new ImageView(BOSSIMAGE), 128))), 900, 250 /*Math.random() * 600, Math.random() * 600*/);
-            }
+        if (player.getScore() >= 5 && player.getScore() <= 6 && fiender.isEmpty()) {
+            addBoss((new Boss(1000, 10, true, boss(new ImageView(BOSSIMAGE), 128))), 900, 250 /*Math.random() * 600, Math.random() * 600*/);
 
+        }
 
             if (fiender.isEmpty()) {
-                addEnemy((new Fiender(100, 10, true, fiender((new ImageView(FIENDERIMAGE)),40))), 300, 250 /*Math.random() * 600, Math.random() * 600*/);
+                addEnemy((new Fiender(100, true, fiender((new ImageView(FIENDERIMAGE)),40))), 300, 250 /*Math.random() * 600, Math.random() * 600*/);
             }
 
-            if (Math.random() < 0.005) {
-                addPowerUp(new GameObject(playAnimation(new ImageView(IMAGE))), Math.random() * 600, Math.random() * 600);
-            }
+
 
             for (GameObject x : powerups) {
                 if (x.isColliding(player)) {
@@ -441,16 +507,7 @@ public class Main extends Application{
                     root.getChildren().remove(x.getView());
                 }
             }
-            //_________________________TESTING OF METHODS_______________________//
 
-            // testing av hp system
-            //  System.out.println(player.getHp());
-            // System.out.println((player.getView().getTranslateX() - 300)+ "+" + (player.getView().getTranslateY()- 250));
-
-       /*for (Fiender fiende5 : fiender) {
-          System.out.println( Math.pow((player.getX() - (fiende5.getX())),2)*0.001);
-           System.out.println( Math.pow((player.getY() - (fiende5.getY())),2)*0.001);
-        }*/
     }
 
 
@@ -496,31 +553,190 @@ public class Main extends Application{
             stage.getScene().setOnKeyPressed((KeyEvent e) ->{
                 if(Status == STATUS.SPILL || Status == STATUS.LOAD){
 
-                    if (null != e.getCode()) //dette er bevegelse , Point2D blir brukt dette er en farts vektor og vi har x, -x, y, -y
-                    //Keycode er satt opp mot en lambda metode som gjør at når man presser en tast eller releaser den(nedenfor) så gjøres det en handling
-                    switch (e.getCode()) {
-                        case A:
-                            player.setVelocity(new Point2D(-5,0));
-                            break;
-                        case D:
-                            player.setVelocity(new Point2D(5,0));
-                            break;
-                        case W:
-                            player.setVelocity(new Point2D(0,-5));
-                            break;
-                        case S:
-                            player.setVelocity(new Point2D(0,5));
-                            break;
-                        case Q:
-                            player.rotateLeft();
-                            break;
-                        case E:
-                            player.rotateRight();
-                            break;
-                        default:
-                            break;
-                    }
+                    if (null != e.getCode())
+                        switch (e.getCode()) {
+                            case A:
+
+
+                                if(player.getRotate() == -180){
+                                    player.setRotateVar(90);
+                                }
+                                else if(player.getRotate() == 0){
+                                    player.setRotateVar(-90);
+                                }
+                                else if(player.getRotate() == 180){
+                                    player.setRotateVar(-270);
+                                }
+                                else if(player.getRotate() == -90){
+                                    player.setRotateVar(0);
+                                }
+                                else if(player.getRotate() == 90){
+                                    player.setRotateVar(-180);
+                                }
+                                else if(player.getRotate() == 270){
+                                    player.setRotateVar(-360);
+                                }
+                                else if(player.getRotate() == -270){
+                                    player.setRotateVar(180);
+                                }
+                                else if(player.getRotate() == 360){
+                                    player.setRotateVar(-450);
+                                }
+                                else if(player.getRotate() == -360){
+                                    player.setRotateVar(270);
+                                }
+
+
+
+
+                                player.rotateRight();
+                                player.setRotateVar(0);
+                                player.rotateRight();
+                                if (Math.abs(player.getVelocity().getX()) <=5 ) {
+
+                                    player.setVelocity(player.getVelocity().add(new Point2D(-2.5, 0)));
+
+                                }else{
+                                    player.setVelocity(player.getVelocity());
+                                }
+
+                                break;
+                            case D:
+
+                                if(player.getRotate() == 180){
+                                    player.setRotateVar(-90);
+                                }
+                                else if(player.getRotate() == 0){
+                                    player.setRotateVar(90);
+                                }
+                                else if(player.getRotate() == -180){
+                                    player.setRotateVar(270);
+                                }
+                                else if(player.getRotate() == -90){
+                                    player.setRotateVar(180);
+                                }
+                                else if(player.getRotate() == 90){
+                                    player.setRotateVar(0);
+                                }
+                                else if(player.getRotate() == 270){
+                                    player.setRotateVar(-180);
+                                }
+                                else if(player.getRotate() == -270){
+                                    player.setRotateVar(360);
+                                }
+                                else if(player.getRotate() == 360){
+                                    player.setRotateVar(-270);
+                                }
+                                else if(player.getRotate() == -360){
+                                    player.setRotateVar(450);
+                                }
+
+
+                                player.rotateRight();
+                                player.setRotateVar(0);
+                                player.rotateRight();
+
+                                if (Math.abs(player.getVelocity().getX()) <=5 ) {
+
+                                    player.setVelocity(player.getVelocity().add(new Point2D(2.5, 0)));
+
+                                }else{
+                                    player.setVelocity(player.getVelocity());
+                                }
+
+
+                                break;
+                            case W:
+
+                                if(player.getRotate() == 180){
+                                    player.setRotateVar(-180);
+                                }
+                                else if(player.getRotate() == 0){
+                                    player.setRotateVar(0);
+                                }
+                                else if(player.getRotate() == 90){
+                                    player.setRotateVar(-90);
+                                }
+                                else if(player.getRotate() == -180){
+                                    player.setRotateVar(180);
+                                }
+                                else if(player.getRotate() == -90){
+                                    player.setRotateVar(90);
+                                }
+                                else if(player.getRotate() == 270){
+                                    player.setRotateVar(-270);
+                                }
+                                else if(player.getRotate() == -270){
+                                    player.setRotateVar(270);
+                                }
+                                else if(player.getRotate() == 360){
+                                    player.setRotateVar(-360);
+                                }
+                                else if(player.getRotate() == -360){
+                                    player.setRotateVar(360);
+                                }
+
+
+                                player.rotateRight();
+                                player.setRotateVar(0);
+                                player.rotateRight();
+
+                                if (Math.abs(player.getVelocity().getY()) <=5 ) {
+
+                                    player.setVelocity(player.getVelocity().add(new Point2D(0, -2.5)));
+
+                                }else{
+                                    player.setVelocity(player.getVelocity());
+                                }
+                                break;
+                            case S:
+                                if(player.getRotate() == 180){
+                                    player.setRotateVar(0);
+                                }
+                                else if(player.getRotate() == 0){
+                                    player.setRotateVar(180);
+                                }
+                                else if(player.getRotate() == -180){
+                                    player.setRotateVar(360);
+                                }
+                                else if(player.getRotate() == -90){
+                                    player.setRotateVar(270);
+                                }
+                                else if(player.getRotate() == 90){
+                                    player.setRotateVar(90);
+                                }
+                                else if(player.getRotate() == 270){
+                                    player.setRotateVar(-90);
+                                }
+                                else if(player.getRotate() == -270){
+                                    player.setRotateVar(450);
+                                }
+                                else if(player.getRotate() == 360){
+                                    player.setRotateVar(-180);
+                                }
+                                else if(player.getRotate() == -360){
+                                    player.setRotateVar(540);
+                                }
+
+
+                                player.rotateRight();
+                                player.setRotateVar(0);
+                                player.rotateRight();
+                                if (Math.abs(player.getVelocity().getY()) <=5 ) {
+
+                                    player.setVelocity(player.getVelocity().add(new Point2D(0, 2.5)));
+
+                                }else{
+                                    player.setVelocity(player.getVelocity());
+                                }
+                            default:
+                                break;
+                        }
+
+
+
                 }
+
 
                 if(e.getCode() == KeyCode.P){
                     if(Status == STATUS.SPILL || Status == STATUS.LOAD){
@@ -557,20 +773,10 @@ public class Main extends Application{
                     stage.setScene(start);
                 });
 
-                //_______________________TESTING AV VELOCITY_____________________//
-                /*
-                System.out.println(player.getVelocity().normalize().multiply(10));
-                System.out.println(player.getVelocity());
-                System.out.println(player.getVelocity().getX());
-                System.out.println(player.getVelocity().getY());
-                System.out.println(new Point2D(0,5.0).getY());
-                System.out.println(player.getHp()); */
+
             });
 
-            /*fordi fartsvektoren aldri stopper etter du har presset den , må man lage en keyrelease som setter farten din ned til nærmere 0 verdi
-                Det er putta 0.1 som verdi fordi skuddene må vite hvilken retning man står mot, når skuddene blir skutt ut ganges de opp sånn at de går mye raskere.
 
-            */
 
             stage.getScene().setOnKeyReleased(e ->{
                 if(Status == STATUS.SPILL || Status == STATUS.LOAD){
@@ -628,7 +834,7 @@ public class Main extends Application{
                             bullet.setVelocity(player.getVelocity().normalize().multiply(10));
                             addBullet(bullet, player.getView().getTranslateX(), player.getView().getTranslateY());
 
-                            // Også Powerup
+
                             if(false){
                                 bullet.setVelocity(player.getVelocity().normalize().multiply(30));
                             }

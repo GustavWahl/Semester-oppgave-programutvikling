@@ -1,25 +1,24 @@
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 
-import javax.swing.plaf.nimbus.State;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationHandler;
 
 public class Fiender extends GameObject{
 
 
     private boolean alive = true;
     private int hp;
-    private int damage;
     private int decideActiveState;
 
 
-    public Fiender(int hp, int damage,boolean alive, Node view){
+    public Fiender(int hp,boolean alive, Node view){
         super(view);
         this.hp = hp;
-        this.damage = damage;
+
         this.alive = alive;
     }
+
+
+
 
     public void FSM (GameObject object , Fiender object2) {
 
@@ -51,8 +50,24 @@ public class Fiender extends GameObject{
 
     public void StateShoot(GameObject object, Fiender object2) {
 
-            object2.setVelocity(new Point2D((((object.getX() - object2.getX()) * 0.01)), (((object.getY() - object2.getY()) * 0.01))));
+                double vektorX = ((object.getX() - object2.getX()) * 0.01);
+                double vektorY =  ((object.getY() - object2.getY()) * 0.01);
+                double pVektorX =  (object.getVelocity().getX());
+                double pVektorY =  (object.getVelocity().getY());
 
+
+                object2.setVelocity(new Point2D((((object.getX() - object2.getX()) * 0.01)), (((object.getY() - object2.getY()) * 0.01))));
+           //     double rotering = Math.atan2(object.getX()-object2.getX(),object.getY()-object2.getY());
+             //   object2.rotate(rotering);
+
+
+                int rotate =  (int)Math.acos(((vektorX * pVektorX) + (vektorY * pVektorY))/ Math.sqrt((Math.pow(vektorX,2))+(Math.pow(vektorY,2)))*
+                Math.sqrt((Math.pow(pVektorX,2))+(Math.pow(pVektorY,2))));
+
+
+            object2.setRotateVar(rotate);
+            object2.rotateRight();
+        System.out.println(rotate);
 
 
         if (Math.pow((object.getX() - object2.getX()),2) *0.001 >= 30 || Math.pow((object.getY() - object2.getY()),2)* 0.001 >= 30 ) {
@@ -62,11 +77,51 @@ public class Fiender extends GameObject{
     }
 
     public void StateWalk(GameObject object, Fiender object2) {
+        double vektorX;
+        double vektorY;
+        double pVektorX;
+        double pVektorY;
+
+        if (Math.abs(object2.getVelocity().normalize().getX()) >= 1) {
+            vektorX = ((object2.getVelocity().normalize().getX()));
+        }else{
+            vektorX = 1;
+        }
+
+        if (Math.abs(object2.getVelocity().normalize().getY()) >= 1) {
+            vektorY = ((object2.getVelocity().normalize().getY()));
+        }else{
+            vektorY = 1;
+        }
+
+        if (Math.abs(object.getVelocity().normalize().getX()) >= 1) {
+            pVektorX = (object.getVelocity().normalize().getX());
+        }else{
+            pVektorX = 1;
+        }
+        if (Math.abs(object.getVelocity().normalize().getY()) >= 1) {
+            pVektorY = (object.getVelocity().normalize().getY());
+        }else{
+            pVektorY = 1;
+        }
 
 
 
-            object2.setVelocity(new Point2D(((object.getX() - object2.getX()) * 0.01), ((object.getY() - object2.getY()) * 0.01)));
 
+
+        object2.setVelocity(new Point2D((((object.getX() - object2.getX()) * 0.01)), (((object.getY() - object2.getY()) * 0.01))));
+
+        double rotering = Math.atan2(pVektorX-vektorX,pVektorY-vektorY);
+         object2.rotate(rotering);
+
+               // int rotate =  (int)Math.acos(((vektorX * pVektorX) + (vektorY * pVektorY))/ Math.sqrt((Math.pow(vektorX,2))+(Math.pow(vektorY,2)))*
+                //Math.sqrt((Math.pow(pVektorX,2))+(Math.pow(pVektorY,2))));
+
+
+          /*  object2.setRotateVar(rotate);
+            object2.rotateRight();
+        System.out.println(rotate);
+*/
 
         if (Math.pow((object.getX() - object2.getX()),2) *0.001 <= 5 || Math.pow((object.getY() - object2.getY()),2)* 0.001 <= 5 ) {
             setState(0);
@@ -89,16 +144,8 @@ public class Fiender extends GameObject{
         return hp;
     }
 
-    public boolean isAlive(){
-        return  alive;
-    }
-
     public boolean isDead(){
         return !alive;
-    }
-
-    public void setDamage(int damage) {
-        this.damage = damage;
     }
 
     public void setAlive(boolean alive) {
