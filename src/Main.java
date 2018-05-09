@@ -1,5 +1,9 @@
-
-
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import javafx.animation.AnimationTimer;
 import javafx.animation.Animation;
 import javafx.application.Application;
@@ -20,6 +24,8 @@ import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -73,6 +79,7 @@ public class Main extends Application{
     private AnimationTimer timer;
     private AnimationTimer timer2;
     private boolean powerup;
+    private final String spillerSave = "spillerSave.txt";
 
     private final Image IMAGE = new Image("bilder/testSprite.png");
     private final Image PLAYERIMAGE = new Image("bilder/player.png");
@@ -90,7 +97,7 @@ public class Main extends Application{
     List<FiendeSkudd> Enemybullets = new ArrayList<>();
     List<GameObject> powerups = new ArrayList<>();
     
-    public static void Main(String[] args) {
+    public static void main(String[] args) {
 
         launch(args);
     }
@@ -118,16 +125,14 @@ public class Main extends Application{
         root.setPrefSize(height, width);
         
         if(Status == STATUS.SPILL){
-            player = new Spiller(100, 34, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0));
+            player = new Spiller(100, 10, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0),width/2,height/2);
             player.setVelocity(new Point2D(0,-0.001));
             addGameObject(player, width/2, height/2);
         }else if(Status == STATUS.LOAD){
-            loader.apneFil();
-            loader.lesfil();
-            player = new Spiller(loader.getHp(), 10, loader.getScore(),"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0));
+            loader.loadSpiller();
+            player = new Spiller(loader.getHp(), 10, loader.getScore(), "Gustav", playerAnim(new ImageView(PLAYERIMAGE),0), width/2, height/2);
             player.setVelocity(new Point2D(0,-0.001));
-            addGameObject(player, loader.getX(), loader.getY());
-            loader.lukkFil();
+            addGameObject(player, loader.getPosX(), loader.getPosY());
         }       
 
         // (new Rectangle(20,20,Color.BLUE)),(new Circle(5,5,5,(new Color(0.1f,0.3f,1.0f, 1.0))))
@@ -520,9 +525,7 @@ public class Main extends Application{
         stage.setScene(start);
         
         hScore.setOnAction((ActionEvent event) -> {
-            loader.apneFil();
-            loader.lesfil();
-            loader.lukkFil();
+            
         });
         
         load.setOnAction((ActionEvent ev) ->{
@@ -539,12 +542,11 @@ public class Main extends Application{
         
         strt.setOnAction((ActionEvent event) -> {
             
-            if(Status == STATUS.LOAD){
-                stage.setScene(new Scene(createContent()));
-            }else if(Status == STATUS.MENY){
+            if(Status == STATUS.MENY){
                 Status = STATUS.SPILL;
-                stage.setScene(new Scene(createContent()));
             }
+            
+            stage.setScene(new Scene(createContent()));
             
             Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 
@@ -755,9 +757,9 @@ public class Main extends Application{
                 });
                 
                 lagre.setOnAction((ActionEvent ej) -> {
-                    filen.apneFil();
-                    filen.lagreData(player.getHp(), player.getScore(), player.getView().getTranslateX(), player.getView().getTranslateY());
-                    filen.lukkFil();
+                    player.setXY(player.getView().getTranslateX(), player.getView().getTranslateY());
+                    
+                    filen.saveSpiller(player.getHp(), player.getScore(), player.getPosX(), player.getPosY());
                 });
                 
                 quit.setOnAction((ActionEvent ek) ->{

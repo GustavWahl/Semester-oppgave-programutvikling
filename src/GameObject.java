@@ -1,22 +1,21 @@
+import java.io.Serializable;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 
-public class GameObject {
+public class GameObject implements Serializable{
 
     private Node view;
     private Point2D velocity = new Point2D(0,0);
     private int rotate;
 
-
     private boolean alive = true;
 
-
+    
     public GameObject(Node view){
         this.view = view;
     }
-
 
     public void setVelocity(Point2D velocity) {
         this.velocity = velocity;

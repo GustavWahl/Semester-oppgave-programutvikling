@@ -1,30 +1,39 @@
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class load {
     
-    private Scanner x;
     private double hp;
     private int score;
     private double posX;
     private double posY;
     
-    public void apneFil(){
-        try{
-            x = new Scanner(new File("data.txt"));
-        }catch(Exception e){
-            System.out.println("finner ikke filen");
-        }
-    }
-    
-    public void lesfil(){
-        while(x.hasNext()){
-            hp = Double.parseDouble(x.next());
-            score = Integer.parseInt(x.next());
-            posX = Double.parseDouble(x.next());
-            posY = Double.parseDouble(x.next());
-            
-            System.out.printf("%s %s %s %s", score, hp, posX, posY);
+    public void loadSpiller(){
+        
+        JSONParser sParse = new JSONParser();
+        
+        try {
+            Object sObj = sParse.parse(new FileReader("Spiller.json"));
+            JSONObject sJson = (JSONObject) sObj;
+            hp = (double) (float) (long) sJson.get("Hp");
+            score = (int) (long) sJson.get("Score");
+            posX = (double) sJson.get("posX");
+            posY = (double) sJson.get("posY");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -36,15 +45,11 @@ public class load {
         return score;
     }
     
-    public double getX(){
+    public double getPosX(){
         return posX;
     }
     
-    public double getY(){
+    public double getPosY(){
         return posY;
-    }
-    
-    public void lukkFil(){
-        x.close();
     }
 }

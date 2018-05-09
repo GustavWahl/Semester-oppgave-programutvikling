@@ -67,7 +67,7 @@ public class Fiender extends GameObject{
 
             object2.setRotateVar(rotate);
             object2.rotateRight();
-        System.out.println(rotate);
+        //System.out.println(rotate);
 
 
         if (Math.pow((object.getX() - object2.getX()),2) *0.001 >= 30 || Math.pow((object.getY() - object2.getY()),2)* 0.001 >= 30 ) {
@@ -127,10 +127,6 @@ public class Fiender extends GameObject{
             setState(0);
         }
     }
-
-
-
-
 
     public int getDecideActiveState() {
         return decideActiveState;
