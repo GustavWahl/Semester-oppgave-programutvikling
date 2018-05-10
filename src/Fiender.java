@@ -8,17 +8,17 @@ public class Fiender extends GameObject{
     private boolean alive = true;
     private int hp;
     private int decideActiveState;
+    private double posX;
+    private double posY;
 
 
-    public Fiender(int hp,boolean alive, Node view){
+    public Fiender(int hp,boolean alive, Node view, double posX, double posY){
         super(view);
         this.hp = hp;
-
         this.alive = alive;
+        this.posX = posX;
+        this.posY = posY;
     }
-
-
-
 
     public void FSM (GameObject object , Fiender object2) {
 
@@ -146,5 +146,18 @@ public class Fiender extends GameObject{
 
     public void setAlive(boolean alive) {
         this.alive = alive;
+    }
+    
+    public void setPosXY(double posX, double posY){
+        this.posX = posX;
+        this.posY = posY;
+    }
+    
+    public double getPosX(){
+        return posX;
+    }
+    
+    public double getPosY(){
+        return posY;
     }
 }

@@ -1,9 +1,3 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import javafx.animation.AnimationTimer;
 import javafx.animation.Animation;
 import javafx.application.Application;
@@ -24,8 +18,6 @@ import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -79,7 +71,7 @@ public class Main extends Application{
     private AnimationTimer timer;
     private AnimationTimer timer2;
     private boolean powerup;
-    private final String spillerSave = "spillerSave.txt";
+    private boolean loaded = false;
 
     private final Image IMAGE = new Image("bilder/testSprite.png");
     private final Image PLAYERIMAGE = new Image("bilder/player.png");
@@ -87,7 +79,9 @@ public class Main extends Application{
     private final Image FIENDERIMAGE = new Image("bilder/fiender.png");
     
     save filen = new save();
-    load loader = new load();
+    SpillerLoad loader = new SpillerLoad();
+    FiendeLoad fLoad = new FiendeLoad();
+    BossLoad bLoad = new BossLoad();
 
     List<Boss> bosser = new ArrayList<>();
     List<Fiender> fiender = new ArrayList<>();
@@ -176,9 +170,7 @@ public class Main extends Application{
         timer.start();
 
 
-
-
-       timer2 = new AnimationTimer() {
+        timer2 = new AnimationTimer() {
             @Override
             public void handle(long now) {
 
@@ -242,8 +234,6 @@ public class Main extends Application{
 
         fiender.add(fiende);
         addGameObject(fiende,x,y);
-
-
     }
 
     private void addFiendeBullet(FiendeSkudd bullet, double x, double y){
@@ -339,6 +329,7 @@ public class Main extends Application{
                     if (fiende.getHp() <= 0) {
                         fiende.setAlive(false);
                         player.setScore();
+                        
 
                         // Tror jeg fucka litt opp litt koden så nå funker den ikke, men den lager litt så mekk java.nio her
                         /*   FileInputStream in;
@@ -439,6 +430,7 @@ public class Main extends Application{
                     FiendeSkudd fiendeBullet5 = new FiendeSkudd(5,5,5,Color.GREEN);
                     FiendeSkudd fiendeBullet6 = new FiendeSkudd(5,5,5,Color.GREEN);
                     FiendeSkudd fiendeBullet7 = new FiendeSkudd(5,5,5,Color.GREEN);
+                    
                     addFiendeBullet(fiendeBullet2, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
                     addFiendeBullet(fiendeBullet3, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
                     addFiendeBullet(fiendeBullet4, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
@@ -464,55 +456,62 @@ public class Main extends Application{
         }
 
 
-            for (Fiender fiende1 : fiender) {
-                if (fiende1.isColliding(player) || fiende1.isColliding(wall1) || fiende1.isColliding(wall2) || fiende1.isColliding(wall3) || fiende1.isColliding(wall4)) {
-                    fiende1.setVelocity(new Point2D(fiende1.getVelocity().getX() + Math.random() * 2 - 1, fiende1.getVelocity().getY() + Math.random() * 2 - 1).multiply(-1));
+        for (Fiender fiende1 : fiender) {
+            if (fiende1.isColliding(player) || fiende1.isColliding(wall1) || fiende1.isColliding(wall2) || fiende1.isColliding(wall3) || fiende1.isColliding(wall4)) {
+                fiende1.setVelocity(new Point2D(fiende1.getVelocity().getX() + Math.random() * 2 - 1, fiende1.getVelocity().getY() + Math.random() * 2 - 1).multiply(-1));
 
-                    fiende1.update();
+                fiende1.update();
 
-                    player.setHp(player.getHp() - 1);
-                    /*if (player.getHp() <= 0) {
-                        System.out.println("Game Over");
-                    }*/
-                }
+                player.setHp(player.getHp() - 1);
+                /*if (player.getHp() <= 0) {
+                    System.out.println("Game Over");
+                }*/
             }
-
-
-            //her fjerner man kuller og fiender hvis de er døde
-
-            bosser.removeIf(Boss::isDead);
-            Enemybullets.removeIf(FiendeSkudd::isDead);
-            bullets.removeIf(Skudd::isDead);
-            fiender.removeIf(Fiender::isDead);
-            explosions.removeIf(GameObject::isDead);
-            bullets.forEach(Skudd::update);
-            fiender.forEach(Fiender::update);
-            Enemybullets.forEach(FiendeSkudd::update);
-
-
-            player.update();
-
-
-
-        if (player.getScore() >= 5 && player.getScore() <= 6 && fiender.isEmpty()) {
-            addBoss((new Boss(1000, 10, true, boss(new ImageView(BOSSIMAGE), 128))), 900, 250 /*Math.random() * 600, Math.random() * 600*/);
-
         }
 
-            if (fiender.isEmpty()) {
-                addEnemy((new Fiender(100, true, fiender((new ImageView(FIENDERIMAGE)),40))), 300, 250 /*Math.random() * 600, Math.random() * 600*/);
+
+        //her fjerner man kuller og fiender hvis de er døde
+
+        bosser.removeIf(Boss::isDead);
+        Enemybullets.removeIf(FiendeSkudd::isDead);
+        bullets.removeIf(Skudd::isDead);
+        fiender.removeIf(Fiender::isDead);
+        explosions.removeIf(GameObject::isDead);
+        bullets.forEach(Skudd::update);
+        fiender.forEach(Fiender::update);
+        Enemybullets.forEach(FiendeSkudd::update);
+
+
+        player.update();
+        
+
+        if(loaded == false && Status == STATUS.LOAD){
+            for(int m = 0; m < fLoad.loaderFiende().size(); m++){
+                addEnemy(fLoad.loaderFiende().get(m), fLoad.loaderFiende().get(m).getPosX(), fLoad.loaderFiende().get(m).getPosY());
             }
-
-
-
-            for (GameObject x : powerups) {
-                if (x.isColliding(player)) {
-
-                    powerup = true;
-                    root.getChildren().remove(x.getView());
-                }
+            for(int b = 0; b < bLoad.loaderBoss().size(); b++){
+                addBoss(bLoad.loaderBoss().get(b), bLoad.loaderBoss().get(b).getPosX(), bLoad.loaderBoss().get(b).getPosY());
             }
+            loaded = true;
+        }
 
+        if (player.getScore() == 5 && player.getScore() <= 6 && fiender.isEmpty() && bosser.isEmpty()) {
+            addBoss((new Boss(1000, 10, true, boss(new ImageView(BOSSIMAGE), 128), 1, 1)), 900, 250 /*Math.random() * 600, Math.random() * 600*/);
+        }
+        
+        if (fiender.isEmpty() && bosser.isEmpty()) {
+            addEnemy((new Fiender(100, true, fiender((new ImageView(FIENDERIMAGE)),40), 1, 1)), 300, 250 /*Math.random() * 600, Math.random() * 600*/);
+        }
+
+
+
+        for (GameObject x : powerups) {
+            if (x.isColliding(player)) {
+
+                powerup = true;
+                root.getChildren().remove(x.getView());
+            }
+        }
     }
 
 
@@ -525,7 +524,8 @@ public class Main extends Application{
         stage.setScene(start);
         
         hScore.setOnAction((ActionEvent event) -> {
-            
+            loader.loadSpiller();
+            fLoad.loaderFiende();
         });
         
         load.setOnAction((ActionEvent ev) ->{
@@ -734,9 +734,6 @@ public class Main extends Application{
                             default:
                                 break;
                         }
-
-
-
                 }
 
 
@@ -758,7 +755,14 @@ public class Main extends Application{
                 
                 lagre.setOnAction((ActionEvent ej) -> {
                     player.setXY(player.getView().getTranslateX(), player.getView().getTranslateY());
-                    
+                    for(int t = 0; t < fiender.size(); t++){
+                        fiender.get(t).setPosXY(fiender.get(t).getView().getTranslateX(), fiender.get(t).getView().getTranslateY());
+                    }
+                    filen.saveFiende(fiender);
+                    for(int t = 0; t < bosser.size(); t++){
+                        bosser.get(t).setPosXY(bosser.get(t).getView().getTranslateX(), bosser.get(t).getView().getTranslateY());
+                    }
+                    filen.saveBoss(bosser);
                     filen.saveSpiller(player.getHp(), player.getScore(), player.getPosX(), player.getPosY());
                 });
                 
@@ -771,6 +775,7 @@ public class Main extends Application{
                     fiender.clear();
                     bullets.clear();
                     powerup = false;
+                    loaded = false;
                     stage.setMaximized(false);
                     stage.setScene(start);
                 });
