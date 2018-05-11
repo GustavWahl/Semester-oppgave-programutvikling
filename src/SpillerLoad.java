@@ -14,6 +14,7 @@ public class SpillerLoad {
     private int score;
     private double posX;
     private double posY;
+    private boolean powerUp;
     
     public void loadSpiller(){
         
@@ -26,6 +27,7 @@ public class SpillerLoad {
             score = (int) (long) sJson.get("Score");
             posX = (double) sJson.get("posX");
             posY = (double) sJson.get("posY");
+            powerUp = (boolean) sJson.get("PUp");
             //System.out.println(sJson);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);
@@ -48,5 +50,9 @@ public class SpillerLoad {
     
     public double getPosY(){
         return posY;
+    }
+    
+    public boolean getPowerup(){
+        return powerUp;
     }
 }

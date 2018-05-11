@@ -70,7 +70,6 @@ public class Main extends Application{
     private Button load;
     private AnimationTimer timer;
     private AnimationTimer timer2;
-    private boolean powerup;
     private boolean loaded = false;
 
     private final Image IMAGE = new Image("bilder/testSprite.png");
@@ -119,12 +118,12 @@ public class Main extends Application{
         root.setPrefSize(height, width);
         
         if(Status == STATUS.SPILL){
-            player = new Spiller(100, 10, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0),width/2,height/2);
+            player = new Spiller(100, 10, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0),width/2,height/2, false);
             player.setVelocity(new Point2D(0,-0.001));
             addGameObject(player, width/2, height/2);
         }else if(Status == STATUS.LOAD){
             loader.loadSpiller();
-            player = new Spiller(loader.getHp(), 10, loader.getScore(), "Gustav", playerAnim(new ImageView(PLAYERIMAGE),0), width/2, height/2);
+            player = new Spiller(loader.getHp(), 10, loader.getScore(), "Gustav", playerAnim(new ImageView(PLAYERIMAGE),0), width/2, height/2, loader.getPowerup());
             player.setVelocity(new Point2D(0,-0.001));
             addGameObject(player, loader.getPosX(), loader.getPosY());
         }       
@@ -508,7 +507,7 @@ public class Main extends Application{
         for (GameObject x : powerups) {
             if (x.isColliding(player)) {
 
-                powerup = true;
+                player.setPowerup(true);
                 root.getChildren().remove(x.getView());
             }
         }
@@ -763,7 +762,7 @@ public class Main extends Application{
                         bosser.get(t).setPosXY(bosser.get(t).getView().getTranslateX(), bosser.get(t).getView().getTranslateY());
                     }
                     filen.saveBoss(bosser);
-                    filen.saveSpiller(player.getHp(), player.getScore(), player.getPosX(), player.getPosY());
+                    filen.saveSpiller(player.getHp(), player.getScore(), player.getPosX(), player.getPosY(), player.getPowerup());
                 });
                 
                 quit.setOnAction((ActionEvent ek) ->{
@@ -774,7 +773,6 @@ public class Main extends Application{
                     timer2.stop();
                     fiender.clear();
                     bullets.clear();
-                    powerup = false;
                     loaded = false;
                     stage.setMaximized(false);
                     stage.setScene(start);
@@ -806,7 +804,7 @@ public class Main extends Application{
                             Skudd bullet = new Skudd(2.5,2.5,2.5,BLACK);
 
 
-                            if(powerup){
+                            if(player.getPowerup()){
                                 if (equalsX(player, new Point2D(0.1,0)) || equalsX(player,new Point2D(-0.1,0))){
                                     Skudd bullet1 = new Skudd(2.5,2.5,2.5,BLACK);
                                     Skudd bullet2 = new Skudd(2.5,2.5,2.5,BLACK);

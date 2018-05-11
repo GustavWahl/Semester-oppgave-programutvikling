@@ -9,9 +9,10 @@ public class Spiller extends GameObject implements Serializable{
     private String name;
     private double posX;
     private double posY;
+    private boolean powerUp;
 
 
-    public Spiller(double hp, int damage, int score, String name, Node view, double posX, double posY){
+    public Spiller(double hp, int damage, int score, String name, Node view, double posX, double posY, boolean powerup){
         super(view);
         this.hp = hp;
         this.damage = damage;
@@ -19,6 +20,7 @@ public class Spiller extends GameObject implements Serializable{
         this.name = name;
         this.posX = posX;
         this.posY = posY;
+        this.powerUp = powerup;
     }
 
     public void setHp(double hp){
@@ -42,6 +44,14 @@ public class Spiller extends GameObject implements Serializable{
 
     public int getScore(){
         return score;
+    }
+    
+    public void setPowerup(boolean up){
+        this.powerUp = up;
+    }
+    
+    public boolean getPowerup(){
+        return powerUp;
     }
     
     public void setXY(double pX, double pY){

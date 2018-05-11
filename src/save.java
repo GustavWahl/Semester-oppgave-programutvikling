@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 public class save {
     
-    public void saveSpiller(double hp, int score, double posX, double posY){
+    public void saveSpiller(double hp, int score, double posX, double posY, boolean powerUp){
         JSONObject jsonSpiller = new JSONObject();
         
         try {
@@ -17,6 +17,7 @@ public class save {
             jsonSpiller.put("Score", score);
             jsonSpiller.put("posX", posX);
             jsonSpiller.put("posY", posY);
+            jsonSpiller.put("PUp", powerUp);
         } catch (JSONException ex) {
             Logger.getLogger(save.class.getName()).log(Level.SEVERE, null, ex);
         }
