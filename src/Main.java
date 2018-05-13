@@ -76,6 +76,8 @@ public class Main extends Application{
     private final Image PLAYERIMAGE = new Image("bilder/player.png");
     private final Image BOSSIMAGE = new Image("bilder/bosstank.png");
     private final Image FIENDERIMAGE = new Image("bilder/fiender.png");
+    private final Image EXPLOSION = new Image("bilder/explosionAnim.png");
+    private final Image DESTROYERIMG = new Image("bilder/misilboss.png");
     
     save filen = new save();
     SpillerLoad loader = new SpillerLoad();
@@ -89,6 +91,8 @@ public class Main extends Application{
     List<GameObject> walls = new ArrayList<>();
     List<FiendeSkudd> Enemybullets = new ArrayList<>();
     List<GameObject> powerups = new ArrayList<>();
+    List<Destroyer> destroyers = new ArrayList<>();
+    List<Misiler> misiler = new ArrayList<>();
     
     public static void main(String[] args) {
 
@@ -118,7 +122,7 @@ public class Main extends Application{
         root.setPrefSize(height, width);
         
         if(Status == STATUS.SPILL){
-            player = new Spiller(100, 10, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0),width/2,height/2, false);
+            player = new Spiller(100, 50, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0),width/2,height/2, false);
             player.setVelocity(new Point2D(0,-0.001));
             addGameObject(player, width/2, height/2);
         }else if(Status == STATUS.LOAD){
@@ -227,6 +231,11 @@ public class Main extends Application{
         addGameObject(bullet,x,y);
     }
 
+    private void addMisiler(Misiler bullet, double x, double y){
+        misiler.add(bullet);
+        addGameObject(bullet,x,y);
+    }
+
 
     // Her er en metode for å legge til fiender
     private void addEnemy(Fiender fiende, double x, double y){
@@ -253,6 +262,12 @@ public class Main extends Application{
 
     }
 
+    private void addDestroyer(Destroyer destroyer, double x, double y){
+
+        destroyers.add(destroyer);
+        addGameObject(destroyer,x,y);
+    }
+
     private void bulletExplosion(GameObject s , double x, double y){
         explosions.add(s);
         addGameObject(s,x,y);
@@ -261,7 +276,6 @@ public class Main extends Application{
 
     private void explosionTimer(){
         for (GameObject ex : explosions) {
-
             ex.setAlive(false);
             root.getChildren().remove(ex.getView());
         }
@@ -286,6 +300,20 @@ public class Main extends Application{
         animation.setCycleCount(Animation.INDEFINITE);
         animation.play();*/
         return p;
+    }
+
+    public Node explosionAnim(ImageView p){
+
+        p.setViewport(new Rectangle2D(0, 0, 20, 20));
+        final Animation animation = new Sprite(p,Duration.millis(1000),4,0,0,10,10);
+        animation.setCycleCount(1);
+        animation.play();
+        return p;
+    }
+
+    public Node destroyer(ImageView b){
+        b.setViewport(new Rectangle2D(0, 0, 40, 40));
+        return b;
     }
 
     public Node boss(ImageView b, int minY){
@@ -348,7 +376,7 @@ public class Main extends Application{
 
             if (bullet.isColliding(wall1) || bullet.isColliding(wall2) || bullet.isColliding(wall3) || bullet.isColliding(wall4)) {
 
-                bulletExplosion((new GameObject(new Circle(10, 10, 10, BLACK))), bullet.getX(), bullet.getY());
+                bulletExplosion((new GameObject( explosionAnim(new ImageView(EXPLOSION)))), bullet.getX(), bullet.getY());
 
                 bullet.setAlive(false);
                 root.getChildren().remove(bullet.getView());
@@ -358,31 +386,31 @@ public class Main extends Application{
 
 
         for (Fiender fiende3 : fiender) {
-                for (FiendeSkudd fbullet : Enemybullets) {
-                    if (fbullet.isColliding(player)) {
-                        player.setHp(player.getHp() - 1);
+            for (FiendeSkudd fbullet : Enemybullets) {
+                if (fbullet.isColliding(player)) {
+                    player.setHp(player.getHp() - 1);
+                    fbullet.setAlive(false);
+                    root.getChildren().remove(fbullet.getView());
+                    fbullet.update();
+                }
+                if (fbullet.isColliding(wall1) || fbullet.isColliding(wall2) || fbullet.isColliding(wall3) || fbullet.isColliding(wall4)) {
+
+                    if (Math.random() * 13 - 5 < 4) {
                         fbullet.setAlive(false);
                         root.getChildren().remove(fbullet.getView());
-                        fbullet.update();
-                    }
-                    if (fbullet.isColliding(wall1) || fbullet.isColliding(wall2) || fbullet.isColliding(wall3) || fbullet.isColliding(wall4)) {
-
-                        if (Math.random() * 13 - 5 < 4) {
-                            fbullet.setAlive(false);
-                            root.getChildren().remove(fbullet.getView());
-                            //fbullet.setVelocity(new Point2D(fbullet.getVelocity().getX() + Math.random() * 10 - 5, fbullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
-                        } else {
-                            fbullet.setAlive(false);
-                            root.getChildren().remove(fbullet.getView());
-                        }
+                        //fbullet.setVelocity(new Point2D(fbullet.getVelocity().getX() + Math.random() * 10 - 5, fbullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
+                    } else {
+                        fbullet.setAlive(false);
+                        root.getChildren().remove(fbullet.getView());
                     }
                 }
+            }
 
                 if (fiende3.getDecideActiveState() == 0) {
 
                     if (Math.random() <= 0.05) {
 
-                        FiendeSkudd fiendeBullet2 = new FiendeSkudd(2.5,2.5,2.5, Color.GREEN);
+                        FiendeSkudd fiendeBullet2 = new FiendeSkudd(2.5, 2.5, 2.5, Color.GREEN);
                         addFiendeBullet(fiendeBullet2, fiende3.getView().getTranslateX(), fiende3.getView().getTranslateY());
                         fiendeBullet2.setVelocity((fiende3.getVelocity().normalize().multiply(3)));
 
@@ -392,68 +420,135 @@ public class Main extends Application{
 
                 fiende3.FSM(player, fiende3);
                 //   fiende3.update();
-            }
 
+        }
 
-
-        for (Boss boss1 : bosser) {
+        for (Destroyer des : destroyers) {
             for (Skudd bullet : bullets) {
-                if (bullet.isColliding(boss1)) {
+                if (bullet.isColliding(des)) {
                     bullet.setAlive(false);
-                    boss1.setHp(boss1.getHp() - player.getDamage());
+                    des.setHp(des.getHp() - player.getDamage());
 
                     root.getChildren().remove(bullet.getView());
-                    if (boss1.getHp() <= 0) {
-                        boss1.setAlive(false);
+                    if (des.getHp() <= 0) {
+                        des.setAlive(false);
                         player.setScore();
 
-                        if (boss1.isAlive() != true) {
+                        if (des.isDead()) {
 
-                            addPowerUp(new GameObject(playAnimation(new ImageView(IMAGE))), boss1.getX(), boss1.getY());
+                            addPowerUp(new GameObject(playAnimation(new ImageView(IMAGE))), des.getX(), des.getY());
 
                         }
 
-                        root.getChildren().remove(boss1.getView());
+                        root.getChildren().remove(des.getView());
                     }
                 }
 
 
             }
-            if (boss1.getDecideActiveState() == 0) {
-
-                if (Math.random() < 0.05) {
-
-                    FiendeSkudd fiendeBullet2 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    FiendeSkudd fiendeBullet3 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    FiendeSkudd fiendeBullet4 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    FiendeSkudd fiendeBullet5 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    FiendeSkudd fiendeBullet6 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    FiendeSkudd fiendeBullet7 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    
-                    addFiendeBullet(fiendeBullet2, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-                    addFiendeBullet(fiendeBullet3, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-                    addFiendeBullet(fiendeBullet4, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-                    addFiendeBullet(fiendeBullet5, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-                    addFiendeBullet(fiendeBullet6, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-                    addFiendeBullet(fiendeBullet7, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-
-                    fiendeBullet2.setVelocity(new Point2D(-5,0));
-                    fiendeBullet3.setVelocity(new Point2D(-4,3));
-                    fiendeBullet4.setVelocity(new Point2D(-2,5));
-                    fiendeBullet5.setVelocity(new Point2D(2,5));
-                    fiendeBullet6.setVelocity(new Point2D(4,3));
-                    fiendeBullet7.setVelocity(new Point2D(5,0));
 
 
-                    fiendeBullet2.update();
+            if (des.getDecideActiveState() == 1) {
+
+                if (Math.random() < 0.01) {
+                    addMisiler(new Misiler(new Circle(3,3,3,Color.BROWN)),des.getView().getTranslateX() + 20,des.getView().getTranslateY() + 40);
                 }
             }
 
+            for(Misiler m : misiler){
+                if(m.isColliding(player)){
+                    player.setHp(player.getHp() - 5);
+                    m.setAlive(false);
+                    root.getChildren().remove(m.getView());
+                    m.update();
 
-            boss1.FSM(player,boss1);
-            boss1.update();
+
+                }
+
+            if (m.getPxBeforeExplosion() >= 500){
+                m.setAlive(false);
+                root.getChildren().remove(m.getView());
+                m.update();
+            }
+
+
+                m.FSM(player,m);
+                m.update();
+            }
+
+
+            des.FSM(player, des);
+            des.update();
+
+
         }
 
+
+            for (Boss boss1 : bosser) {
+                for (Skudd bullet : bullets) {
+                    if (bullet.isColliding(boss1)) {
+                        bullet.setAlive(false);
+                        boss1.setHp(boss1.getHp() - player.getDamage());
+
+                        root.getChildren().remove(bullet.getView());
+                        if (boss1.getHp() <= 0) {
+                            boss1.setAlive(false);
+                            player.setScore();
+
+                            if (boss1.isAlive() != true) {
+
+                                addPowerUp(new GameObject(playAnimation(new ImageView(IMAGE))), boss1.getX(), boss1.getY());
+
+                            }
+
+                            root.getChildren().remove(boss1.getView());
+                        }
+                    }
+
+
+                }
+
+
+                if (boss1.getDecideActiveState() == 0) {
+
+                    if (Math.random() < 0.05) {
+
+                        FiendeSkudd fiendeBullet2 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+                        FiendeSkudd fiendeBullet3 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+                        FiendeSkudd fiendeBullet4 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+                        FiendeSkudd fiendeBullet5 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+                        FiendeSkudd fiendeBullet6 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+                        FiendeSkudd fiendeBullet7 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+
+                        addFiendeBullet(fiendeBullet2, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+                        addFiendeBullet(fiendeBullet3, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+                        addFiendeBullet(fiendeBullet4, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+                        addFiendeBullet(fiendeBullet5, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+                        addFiendeBullet(fiendeBullet6, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+                        addFiendeBullet(fiendeBullet7, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+
+                        fiendeBullet2.setVelocity(new Point2D(-5, 0));
+                        fiendeBullet3.setVelocity(new Point2D(-4, 3));
+                        fiendeBullet4.setVelocity(new Point2D(-2, 5));
+                        fiendeBullet5.setVelocity(new Point2D(2, 5));
+                        fiendeBullet6.setVelocity(new Point2D(4, 3));
+                        fiendeBullet7.setVelocity(new Point2D(5, 0));
+
+
+                        fiendeBullet2.update();
+                        fiendeBullet3.update();
+                        fiendeBullet4.update();
+                        fiendeBullet5.update();
+                        fiendeBullet6.update();
+                        fiendeBullet7.update();
+                    }
+                }
+
+
+                boss1.FSM(player, boss1);
+                boss1.update();
+
+        }
 
         for (Fiender fiende1 : fiender) {
             if (fiende1.isColliding(player) || fiende1.isColliding(wall1) || fiende1.isColliding(wall2) || fiende1.isColliding(wall3) || fiende1.isColliding(wall4)) {
@@ -470,7 +565,8 @@ public class Main extends Application{
 
 
         //her fjerner man kuller og fiender hvis de er døde
-
+        misiler.removeIf(Misiler::isDead);
+        destroyers.removeIf(Destroyer::isDead);
         bosser.removeIf(Boss::isDead);
         Enemybullets.removeIf(FiendeSkudd::isDead);
         bullets.removeIf(Skudd::isDead);
@@ -479,6 +575,7 @@ public class Main extends Application{
         bullets.forEach(Skudd::update);
         fiender.forEach(Fiender::update);
         Enemybullets.forEach(FiendeSkudd::update);
+        misiler.forEach(Misiler::update);
 
 
         player.update();
@@ -494,12 +591,16 @@ public class Main extends Application{
             loaded = true;
         }
 
-        if (player.getScore() == 5 && player.getScore() <= 6 && fiender.isEmpty() && bosser.isEmpty()) {
+        if (player.getScore() == 5 && player.getScore() <= 6  && bosser.isEmpty()) {
             addBoss((new Boss(1000, 10, true, boss(new ImageView(BOSSIMAGE), 128), 1, 1)), 900, 250 /*Math.random() * 600, Math.random() * 600*/);
         }
         
-        if (fiender.isEmpty() && bosser.isEmpty()) {
-            addEnemy((new Fiender(100, true, fiender((new ImageView(FIENDERIMAGE)),40), 1, 1)), 300, 250 /*Math.random() * 600, Math.random() * 600*/);
+        if (Math.random() < 0.005) {
+            addEnemy((new Fiender(100, true, fiender((new ImageView(FIENDERIMAGE)),0), 1, 1)), Math.random() * 600, Math.random() * 600 );
+        }
+
+        if (player.getScore() == 1&& destroyers.isEmpty()){
+            addDestroyer((new Destroyer(200,true,destroyer(new ImageView(DESTROYERIMG)),1,1)), Math.random() * 600, Math.random() * 600);
         }
 
 
