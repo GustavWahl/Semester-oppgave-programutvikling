@@ -55,8 +55,8 @@ public class Spiller extends GameObject implements Serializable{
     }
     
     public void setXY(double pX, double pY){
-        posX = pX;
-        posY = pY;
+        posX = Math.round(pX);
+        posY = Math.round(pY);
     }
     
     public double getPosX(){

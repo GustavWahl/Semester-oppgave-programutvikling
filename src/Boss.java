@@ -76,11 +76,6 @@ import javafx.scene.Node;
 
             object2.setVelocity(new Point2D(((object.getX() - object2.getX()) * 0.001), ((object.getY() - object2.getY()) * 0.001)));
 
-
-
-
-
-
             if (Math.pow((object.getX() - object2.getX()),2) *0.001 <= 50 && Math.pow((object.getY() - object2.getY()),2)* 0.001 <= 50 ) {
                 setState(0);
             }
@@ -118,9 +113,9 @@ import javafx.scene.Node;
             this.alive = alive;
         }
         
-            public void setPosXY(double posX, double posY){
-            this.posX = posX;
-            this.posY = posY;
+        public void setPosXY(double posX, double posY){
+            this.posX = Math.round(posX);
+            this.posY = Math.round(posY);
         }
 
         public double getPosX(){

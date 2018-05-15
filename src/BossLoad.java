@@ -28,11 +28,10 @@ public class BossLoad {
             JSONObject jsonO = (JSONObject) obj;
             if(jsonO.get("Ant") != null){
                 int antF = (int) (long) jsonO.get("Ant");
-                //System.out.println(antF);
                 for(int i = 0; i < antF; i++){
                     JSONObject jsonOi = (JSONObject) jsonO.get(""+i);
-                    mellom.add(new Boss((int)(long)jsonOi.get("Hp"), 10, true, boss((new ImageView(BOSSIMAGE)),128), (double)jsonOi.get("PosX"), (double)jsonOi.get("PosY")));
-                    //System.out.println(jsonOi);
+                    mellom.add(new Boss((int)(long)jsonOi.get("Hp"), 10, true, boss((new ImageView(BOSSIMAGE)),128), 
+                            Double.valueOf((long)jsonOi.get("PosX")), Double.valueOf((long)jsonOi.get("PosY"))));
                 }
             }
             

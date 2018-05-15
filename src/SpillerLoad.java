@@ -25,15 +25,26 @@ public class SpillerLoad {
             JSONObject sJson = (JSONObject) sObj;
             hp = (double) (float) (long) sJson.get("Hp");
             score = (int) (long) sJson.get("Score");
-            posX = (double) sJson.get("posX");
-            posY = (double) sJson.get("posY");
+            posX = Double.valueOf((long) sJson.get("posX"));
+            posY =  Double.valueOf((long) sJson.get("posY"));
             powerUp = (boolean) sJson.get("PUp");
-            //System.out.println(sJson);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException | ParseException ex) {
             Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public boolean checkLoad(){
+        try {
+            JSONParser testParse = new JSONParser();
+            Object testObj = testParse.parse(new FileReader("Spiller.json"));
+            return true;
+        } catch (FileNotFoundException ex) {
+            return false;
+        } catch (IOException | ParseException ex) {
+            return false;
+        } 
     }
     
     public double getHp(){
