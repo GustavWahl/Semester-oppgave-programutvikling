@@ -1,14 +1,21 @@
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 
-
+/**
+ * Represents the shots fiered by the Destroyer objects
+ * 
+ * @author Gustav Wahl
+ */
 public class Misiler extends GameObject{
     private int decideActiveState;
     private int pxBeforeExplosion;
 
+    /**
+     * 
+     * @param view 
+     */
     public Misiler( Node view){
         super(view);
-
     }
 
 

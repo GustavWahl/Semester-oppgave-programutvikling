@@ -1,4 +1,3 @@
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,40 +14,40 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
- * retrives attributes for Fiender objects from JSON-file
+ * retrives attributes for Destroyer objects from JSON-file
  * 
  * @author Gustav Wehn
  */
-public class FiendeLoad{
+public class DestroyerLoad {
     
-    private final Image FIENDERIMAGE = new Image("bilder/fiender.png");
+    private final Image DESTROYERIMG = new Image("bilder/misilboss.png");
     
     /**
-     * loads all the attributes for Fiender objects from JSON-file and makes Fiender objects of them
+     * loads all the attributes for Destroyer objects from JSON-file and makes Destroyer objects of them
      * 
-     * @return a list of Fiende objects with attributes loaded from the JSON-file
+     * @return a list of Destroyer objects with attributes loaded from the JSON-file
      */
-    public List<Fiender> loaderFiende(){
+    public List<Destroyer> loaderDestroyer(){
         
         JSONParser parser = new JSONParser();
-        List<Fiender> mellom = new ArrayList<>();
+        List<Destroyer> mellom = new ArrayList<>();
         
         try {
-            Object obj = parser.parse(new FileReader("Fiender.json"));
+            Object obj = parser.parse(new FileReader("Destroyer.json"));
             JSONObject jsonO = (JSONObject) obj;
             if(jsonO.get("Ant") != null){
                 int antF = (int) (long) jsonO.get("Ant");
                 for(int i = 0; i < antF; i++){
                     JSONObject jsonOi = (JSONObject) jsonO.get(""+i);
-                    mellom.add(new Fiender((int)(long)jsonOi.get("Hp"), true, fiender((new ImageView(FIENDERIMAGE)),0), 
+                    mellom.add(new Destroyer((int)(long)jsonOi.get("Hp"), true, destroyer(new ImageView(DESTROYERIMG)), 
                             (double)(float)(long)jsonOi.get("PosX"), (double)(float)(long)jsonOi.get("PosY")));
                 }
             }
             
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BossLoad.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException | ParseException ex) {
-            Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BossLoad.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return mellom;
@@ -58,12 +57,10 @@ public class FiendeLoad{
      * sets what part of the image is shown
      * 
      * @param b the image
-     * @param minY where in the pictures height it starts to show
      * @return the part of the picture that is shown, as a Node
      */
-    public Node fiender(ImageView b, int minY){
-        b.setViewport(new Rectangle2D(0, minY, 20, 20));
-        // final Animation animation = new Sprite(b,Duration.millis(3000),4,4,0,-16,60,60);
+    public Node destroyer(ImageView b){
+        b.setViewport(new Rectangle2D(0, 0, 40, 40));
         return b;
     }
 }

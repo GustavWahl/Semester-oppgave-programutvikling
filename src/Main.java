@@ -18,8 +18,8 @@ import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.event.ActionEvent;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Label;
@@ -27,24 +27,23 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
-
 import static javafx.scene.paint.Color.BLACK;
-
 import javafx.util.Duration;
 import javafx.stage.Screen;
-
 
 
 public class Main extends Application{
     
     public Main() {
         createPause();
+        createGameOver();
     }
     
     private enum STATUS{
         SPILL,
         LOAD,
-        MENY
+        MENY,
+        GAMEOVER
     }
     
     private STATUS Status = STATUS.MENY;
@@ -54,33 +53,41 @@ public class Main extends Application{
     private VBox stats;
     private VBox pause;
     private VBox meny;
+    private VBox gameOver;
     private Label helse;
     private Label score;
-    private Label tid;
     private Label loadNy;
-    private Label saveStatus;
+    private Label lagret;
+    private Label gameO;
+    private Label gameScore;
     private GameObject wall1;
     private GameObject wall2;
     private GameObject wall3;
     private GameObject wall4;
     private Button strt;
     private Button fortsett;
-    private Button lagre; 
+    private Button lagre;
     private Button quit;
     private Button load;
+    private Button gameOverB;
     private AnimationTimer timer;
     private AnimationTimer timer2;
+    private double height;
+    private double width;
     private boolean loaded = false;
 
     private final Image IMAGE = new Image("bilder/testSprite.png");
     private final Image PLAYERIMAGE = new Image("bilder/player.png");
     private final Image BOSSIMAGE = new Image("bilder/bosstank.png");
     private final Image FIENDERIMAGE = new Image("bilder/fiender.png");
+    private final Image EXPLOSION = new Image("bilder/explosionAnim.png");
+    private final Image DESTROYERIMG = new Image("bilder/misilboss.png");
     
     save filen = new save();
     SpillerLoad loader = new SpillerLoad();
     FiendeLoad fLoad = new FiendeLoad();
     BossLoad bLoad = new BossLoad();
+    DestroyerLoad dLoad = new DestroyerLoad();
 
     List<Boss> bosser = new ArrayList<>();
     List<Fiender> fiender = new ArrayList<>();
@@ -89,6 +96,8 @@ public class Main extends Application{
     List<GameObject> walls = new ArrayList<>();
     List<FiendeSkudd> Enemybullets = new ArrayList<>();
     List<GameObject> powerups = new ArrayList<>();
+    List<Destroyer> destroyers = new ArrayList<>();
+    List<Misiler> misiler = new ArrayList<>();
     
     public static void main(String[] args) {
 
@@ -112,13 +121,13 @@ public class Main extends Application{
         root = new Pane();
         
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        double width = screenBounds.getWidth();
-        double height = screenBounds.getHeight();
+        width = screenBounds.getWidth();
+        height = screenBounds.getHeight();
         
         root.setPrefSize(height, width);
         
         if(Status == STATUS.SPILL){
-            player = new Spiller(100, 10, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0),width/2,height/2, false);
+            player = new Spiller(100, 50, 0,"Gustav",playerAnim(new ImageView(PLAYERIMAGE),0),width/2,height/2, false);
             player.setVelocity(new Point2D(0,-0.001));
             addGameObject(player, width/2, height/2);
         }else if(Status == STATUS.LOAD){
@@ -148,7 +157,6 @@ public class Main extends Application{
         
         helse = new Label();
         score = new Label();
-        tid = new Label();
         
         stats = new VBox(10);
         stats.setPadding(new Insets(10, 10, 10, 10));
@@ -188,7 +196,6 @@ public class Main extends Application{
         
         loadNy = new Label("Starter nytt spill");
         strt = new Button("Start Spill");
-        //hScore = new Button("Vis loaden");
         load = new Button("Last lagret spill");
         
         meny = new VBox();
@@ -205,26 +212,78 @@ public class Main extends Application{
         pause = new VBox(20);
         
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        double width = screenBounds.getWidth();
-        double height = screenBounds.getHeight();
+        width = screenBounds.getWidth();
+        height = screenBounds.getHeight();
         
         pause.setAlignment(Pos.CENTER);
         pause.setPrefWidth(width);
         pause.setPrefHeight(height);
         pause.setBackground(new Background( new BackgroundFill( Color.web( "#000000" ), CornerRadii.EMPTY, Insets.EMPTY ) ));
         
-        saveStatus = new Label();
+        lagret = new Label();
         fortsett = new Button("Fortsett");
         lagre = new Button("Lagre");
         quit = new Button("Avslutt");
         
-        pause.getChildren().addAll(saveStatus, fortsett, lagre, quit);
+        pause.getChildren().addAll(lagret, fortsett, lagre, quit);
+    }
+    
+    public void createGameOver(){
+        
+        gameOver = new VBox(20);
+        
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        width = screenBounds.getWidth();
+        height = screenBounds.getHeight();
+        
+        gameOver.setAlignment(Pos.CENTER);
+        gameOver.setPrefWidth(width);
+        gameOver.setPrefHeight(height);
+        gameOver.setBackground(new Background( new BackgroundFill( Color.web( "#000000" ), CornerRadii.EMPTY, Insets.EMPTY ) ));
+        
+        gameO = new Label("GAME OVER");
+        gameScore = new Label(" ");
+        gameOverB = new Button("Tilbake til startsiden");
+        
+        gameOver.getChildren().addAll(gameO, gameScore, gameOverB);
+    }
+    
+    
+    public double generateX(){
+        double kordX = Math.random()*width;
+        if(kordX < 30){
+            kordX+= 30;
+            return kordX;
+        }else if(kordX > width - 30){
+            kordX-= 30;
+            return kordX;
+        }else{
+            return kordX;
+        }
+    }
+    
+    public double generateY(){
+        double kordY = Math.random()*height;
+        if(kordY < 30){
+            kordY+= 30;
+            return kordY;
+        }else if(kordY > height - 30){
+            kordY-= 30;
+            return kordY;
+        }else{
+            return kordY;
+        }
     }
 
 
     // metode for å legge til og gjøre dem visible
     private void addBullet(Skudd bullet, double x, double y){
         bullets.add(bullet);
+        addGameObject(bullet,x,y);
+    }
+
+    private void addMisiler(Misiler bullet, double x, double y){
+        misiler.add(bullet);
         addGameObject(bullet,x,y);
     }
 
@@ -254,6 +313,12 @@ public class Main extends Application{
 
     }
 
+    private void addDestroyer(Destroyer destroyer, double x, double y){
+
+        destroyers.add(destroyer);
+        addGameObject(destroyer,x,y);
+    }
+
     private void bulletExplosion(GameObject s , double x, double y){
         explosions.add(s);
         addGameObject(s,x,y);
@@ -262,7 +327,6 @@ public class Main extends Application{
 
     private void explosionTimer(){
         for (GameObject ex : explosions) {
-
             ex.setAlive(false);
             root.getChildren().remove(ex.getView());
         }
@@ -287,6 +351,20 @@ public class Main extends Application{
         animation.setCycleCount(Animation.INDEFINITE);
         animation.play();*/
         return p;
+    }
+
+    public Node explosionAnim(ImageView p){
+
+        p.setViewport(new Rectangle2D(0, 0, 20, 20));
+        final Animation animation = new Sprite(p,Duration.millis(1000),4,0,0,10,10);
+        animation.setCycleCount(1);
+        animation.play();
+        return p;
+    }
+
+    public Node destroyer(ImageView b){
+        b.setViewport(new Rectangle2D(0, 0, 40, 40));
+        return b;
     }
 
     public Node boss(ImageView b, int minY){
@@ -316,6 +394,7 @@ public class Main extends Application{
         
         helse.setText("HP: " + String.valueOf(player.getHp()));
         score.setText("Score: " + String.valueOf(player.getScore()));
+        gameScore.setText("Score: "+player.getScore());
 
         // Disse Foreach'ene går gjennom Arraylistene våre for å kunne sjekke alle fiender og skudd
 
@@ -349,7 +428,7 @@ public class Main extends Application{
 
             if (bullet.isColliding(wall1) || bullet.isColliding(wall2) || bullet.isColliding(wall3) || bullet.isColliding(wall4)) {
 
-                bulletExplosion((new GameObject(new Circle(10, 10, 10, BLACK))), bullet.getX(), bullet.getY());
+                bulletExplosion((new GameObject( explosionAnim(new ImageView(EXPLOSION)))), bullet.getX(), bullet.getY());
 
                 bullet.setAlive(false);
                 root.getChildren().remove(bullet.getView());
@@ -359,31 +438,31 @@ public class Main extends Application{
 
 
         for (Fiender fiende3 : fiender) {
-                for (FiendeSkudd fbullet : Enemybullets) {
-                    if (fbullet.isColliding(player)) {
-                        player.setHp(player.getHp() - 1);
+            for (FiendeSkudd fbullet : Enemybullets) {
+                if (fbullet.isColliding(player)) {
+                    player.setHp(player.getHp() - 1);
+                    fbullet.setAlive(false);
+                    root.getChildren().remove(fbullet.getView());
+                    fbullet.update();
+                }
+                if (fbullet.isColliding(wall1) || fbullet.isColliding(wall2) || fbullet.isColliding(wall3) || fbullet.isColliding(wall4)) {
+
+                    if (Math.random() * 13 - 5 < 4) {
                         fbullet.setAlive(false);
                         root.getChildren().remove(fbullet.getView());
-                        fbullet.update();
-                    }
-                    if (fbullet.isColliding(wall1) || fbullet.isColliding(wall2) || fbullet.isColliding(wall3) || fbullet.isColliding(wall4)) {
-
-                        if (Math.random() * 13 - 5 < 4) {
-                            fbullet.setAlive(false);
-                            root.getChildren().remove(fbullet.getView());
-                            //fbullet.setVelocity(new Point2D(fbullet.getVelocity().getX() + Math.random() * 10 - 5, fbullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
-                        } else {
-                            fbullet.setAlive(false);
-                            root.getChildren().remove(fbullet.getView());
-                        }
+                        //fbullet.setVelocity(new Point2D(fbullet.getVelocity().getX() + Math.random() * 10 - 5, fbullet.getVelocity().getY() + Math.random() * 10 - 5).multiply(-1));
+                    } else {
+                        fbullet.setAlive(false);
+                        root.getChildren().remove(fbullet.getView());
                     }
                 }
+            }
 
                 if (fiende3.getDecideActiveState() == 0) {
 
                     if (Math.random() <= 0.05) {
 
-                        FiendeSkudd fiendeBullet2 = new FiendeSkudd(2.5,2.5,2.5, Color.GREEN);
+                        FiendeSkudd fiendeBullet2 = new FiendeSkudd(2.5, 2.5, 2.5, Color.GREEN);
                         addFiendeBullet(fiendeBullet2, fiende3.getView().getTranslateX(), fiende3.getView().getTranslateY());
                         fiendeBullet2.setVelocity((fiende3.getVelocity().normalize().multiply(3)));
 
@@ -393,84 +472,161 @@ public class Main extends Application{
 
                 fiende3.FSM(player, fiende3);
                 //   fiende3.update();
-            }
 
+        }
 
-
-        for (Boss boss1 : bosser) {
+        for (Destroyer des : destroyers) {
             for (Skudd bullet : bullets) {
-                if (bullet.isColliding(boss1)) {
+                if (bullet.isColliding(des)) {
                     bullet.setAlive(false);
-                    boss1.setHp(boss1.getHp() - player.getDamage());
+                    des.setHp(des.getHp() - player.getDamage());
 
                     root.getChildren().remove(bullet.getView());
-                    if (boss1.getHp() <= 0) {
-                        boss1.setAlive(false);
+                    if (des.getHp() <= 0) {
+                        des.setAlive(false);
                         player.setScore();
 
-                        if (boss1.isAlive() != true) {
+                        if (des.isDead()) {
 
-                            addPowerUp(new GameObject(playAnimation(new ImageView(IMAGE))), boss1.getX(), boss1.getY());
+                            addPowerUp(new GameObject(playAnimation(new ImageView(IMAGE))), des.getX(), des.getY());
 
                         }
 
-                        root.getChildren().remove(boss1.getView());
+                        root.getChildren().remove(des.getView());
                     }
                 }
+
+
             }
-            
-            if (boss1.getDecideActiveState() == 0) {
-
-                if (Math.random() < 0.05) {
-
-                    FiendeSkudd fiendeBullet2 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    FiendeSkudd fiendeBullet3 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    FiendeSkudd fiendeBullet4 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    FiendeSkudd fiendeBullet5 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    FiendeSkudd fiendeBullet6 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    FiendeSkudd fiendeBullet7 = new FiendeSkudd(5,5,5,Color.GREEN);
-                    
-                    addFiendeBullet(fiendeBullet2, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-                    addFiendeBullet(fiendeBullet3, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-                    addFiendeBullet(fiendeBullet4, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-                    addFiendeBullet(fiendeBullet5, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-                    addFiendeBullet(fiendeBullet6, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-                    addFiendeBullet(fiendeBullet7, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY()+ 60);
-
-                    fiendeBullet2.setVelocity(new Point2D(-5,0));
-                    fiendeBullet3.setVelocity(new Point2D(-4,3));
-                    fiendeBullet4.setVelocity(new Point2D(-2,5));
-                    fiendeBullet5.setVelocity(new Point2D(2,5));
-                    fiendeBullet6.setVelocity(new Point2D(4,3));
-                    fiendeBullet7.setVelocity(new Point2D(5,0));
 
 
-                    fiendeBullet2.update();
+            if (des.getDecideActiveState() == 1) {
+
+                if (Math.random() < 0.01) {
+                    addMisiler(new Misiler(new Circle(3,3,3,Color.BROWN)),des.getView().getTranslateX() + 20,des.getView().getTranslateY() + 40);
                 }
             }
 
+            for(Misiler m : misiler){
+                if(m.isColliding(player)){
+                    player.setHp(player.getHp() - 5);
+                    m.setAlive(false);
+                    root.getChildren().remove(m.getView());
+                    m.update();
 
-            boss1.FSM(player,boss1);
-            boss1.update();
+
+                }
+
+            if (m.getPxBeforeExplosion() >= 500){
+                m.setAlive(false);
+                root.getChildren().remove(m.getView());
+                m.update();
+            }
+
+
+                m.FSM(player,m);
+                m.update();
+            }
+
+
+            des.FSM(player, des);
+            des.update();
+
+
         }
 
 
+            for (Boss boss1 : bosser) {
+                for (Skudd bullet : bullets) {
+                    if (bullet.isColliding(boss1)) {
+                        bullet.setAlive(false);
+                        boss1.setHp(boss1.getHp() - player.getDamage());
+
+                        root.getChildren().remove(bullet.getView());
+                        if (boss1.getHp() <= 0) {
+                            boss1.setAlive(false);
+                            player.setScore();
+
+                            if (boss1.isAlive() != true) {
+
+                                addPowerUp(new GameObject(playAnimation(new ImageView(IMAGE))), boss1.getX(), boss1.getY());
+
+                            }
+
+                            root.getChildren().remove(boss1.getView());
+                        }
+                    }
+
+
+                }
+
+
+                if (boss1.getDecideActiveState() == 0) {
+
+                    if (Math.random() < 0.05) {
+
+                        FiendeSkudd fiendeBullet2 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+                        FiendeSkudd fiendeBullet3 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+                        FiendeSkudd fiendeBullet4 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+                        FiendeSkudd fiendeBullet5 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+                        FiendeSkudd fiendeBullet6 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+                        FiendeSkudd fiendeBullet7 = new FiendeSkudd(5, 5, 5, Color.GREEN);
+
+                        addFiendeBullet(fiendeBullet2, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+                        addFiendeBullet(fiendeBullet3, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+                        addFiendeBullet(fiendeBullet4, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+                        addFiendeBullet(fiendeBullet5, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+                        addFiendeBullet(fiendeBullet6, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+                        addFiendeBullet(fiendeBullet7, boss1.getView().getTranslateX() + 30, boss1.getView().getTranslateY() + 60);
+
+                        fiendeBullet2.setVelocity(new Point2D(-5, 0));
+                        fiendeBullet3.setVelocity(new Point2D(-4, 3));
+                        fiendeBullet4.setVelocity(new Point2D(-2, 5));
+                        fiendeBullet5.setVelocity(new Point2D(2, 5));
+                        fiendeBullet6.setVelocity(new Point2D(4, 3));
+                        fiendeBullet7.setVelocity(new Point2D(5, 0));
+
+
+                        fiendeBullet2.update();
+                        fiendeBullet3.update();
+                        fiendeBullet4.update();
+                        fiendeBullet5.update();
+                        fiendeBullet6.update();
+                        fiendeBullet7.update();
+                    }
+                }
+
+
+                boss1.FSM(player, boss1);
+                boss1.update();
+
+        }
+
         for (Fiender fiende1 : fiender) {
-            if (fiende1.isColliding(player) || fiende1.isColliding(wall1) || fiende1.isColliding(wall2) || fiende1.isColliding(wall3) || fiende1.isColliding(wall4)) {
+            if (fiende1.isColliding(player)){
                 fiende1.setVelocity(new Point2D(fiende1.getVelocity().getX() + Math.random() * 2 - 1, fiende1.getVelocity().getY() + Math.random() * 2 - 1).multiply(-1));
 
                 fiende1.update();
 
                 player.setHp(player.getHp() - 1);
-                /*if (player.getHp() <= 0) {
-                    System.out.println("Game Over");
-                }*/
+                if (player.getHp() <= 0) {
+                    
+                }
+            }
+        }
+        
+        for (Fiender fiende1 : fiender) {
+            if (fiende1.isColliding(wall1) || fiende1.isColliding(wall2) || fiende1.isColliding(wall3) || fiende1.isColliding(wall4)) {
+                fiende1.setVelocity(new Point2D(fiende1.getVelocity().getX() + Math.random() * 2 - 1, fiende1.getVelocity().getY() + Math.random() * 2 - 1).multiply(-1));
+
+                fiende1.update();
             }
         }
 
 
         //her fjerner man kuller og fiender hvis de er døde
-
+        misiler.removeIf(Misiler::isDead);
+        destroyers.removeIf(Destroyer::isDead);
         bosser.removeIf(Boss::isDead);
         Enemybullets.removeIf(FiendeSkudd::isDead);
         bullets.removeIf(Skudd::isDead);
@@ -479,6 +635,7 @@ public class Main extends Application{
         bullets.forEach(Skudd::update);
         fiender.forEach(Fiender::update);
         Enemybullets.forEach(FiendeSkudd::update);
+        misiler.forEach(Misiler::update);
 
 
         player.update();
@@ -491,16 +648,24 @@ public class Main extends Application{
             for(int b = 0; b < bLoad.loaderBoss().size(); b++){
                 addBoss(bLoad.loaderBoss().get(b), bLoad.loaderBoss().get(b).getPosX(), bLoad.loaderBoss().get(b).getPosY());
             }
+            for(int d = 0; d < dLoad.loaderDestroyer().size(); d++){
+                addDestroyer(dLoad.loaderDestroyer().get(d), dLoad.loaderDestroyer().get(d).getPosX(), dLoad.loaderDestroyer().get(d).getPosY());
+            }
             loaded = true;
         }
 
-        if (player.getScore() == 5 && player.getScore() <= 6 && fiender.isEmpty() && bosser.isEmpty()) {
-            addBoss((new Boss(1000, 10, true, boss(new ImageView(BOSSIMAGE), 128), 1, 1)), 900, 250 /*Math.random() * 600, Math.random() * 600*/);
+        if (player.getScore() == 5 && bosser.isEmpty()) {
+            addBoss((new Boss(1000, 10, true, boss(new ImageView(BOSSIMAGE), 128), 1, 1)), 900, 250);
         }
         
-        if (fiender.isEmpty()) {
-            addEnemy((new Fiender(100, true, fiender((new ImageView(FIENDERIMAGE)),40), 1, 1)), 300, 250 /*Math.random() * 600, Math.random() * 600*/);
+        if (Math.random() < 0.005) {
+            addEnemy((new Fiender(100, true, fiender((new ImageView(FIENDERIMAGE)),0), 1, 1)), generateX(), generateY());
         }
+
+        if (player.getScore() == 1 && destroyers.isEmpty()){
+            addDestroyer((new Destroyer(200,true,destroyer(new ImageView(DESTROYERIMG)),1,1)), generateX(), generateY());
+        }
+
 
 
         for (GameObject x : powerups) {
@@ -527,13 +692,13 @@ public class Main extends Application{
                 loadNy.setText("Starter nytt spill");
                 load.setText("Last lagret spill");
             }else{
-                //if(loader.checkLoad()){
+                if(loader.testLoad()){
                     Status = STATUS.LOAD;
                     loadNy.setText("Laster lagret spill");
                     load.setText("Fjern lagret spill");
-                /*}else{
-                    loadNy.setText("Fant ingen lagrede spill. Start er nytt spill");
-                }*/
+                }else{
+                    loadNy.setText("Fant ingen lagrede spill");
+                }
             }
         });
         
@@ -548,9 +713,14 @@ public class Main extends Application{
             Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 
             stage.setMaximized(true);
-
+            
             stage.getScene().setOnKeyPressed((KeyEvent e) ->{
                 if(Status == STATUS.SPILL || Status == STATUS.LOAD){
+                    
+                    if(player.getHp() <= 0){
+                        Status = STATUS.GAMEOVER;
+                        root.getChildren().add(gameOver);
+                    }
 
                     if (null != e.getCode())
                         switch (e.getCode()) {
@@ -733,22 +903,21 @@ public class Main extends Application{
                         }
                 }
 
-
-                if(e.getCode() == KeyCode.P){
+                if(e.getCode() == KeyCode.P || e.getCode() == KeyCode.ESCAPE){
                     if(Status == STATUS.SPILL || Status == STATUS.LOAD){
                         Status = STATUS.MENY;
                         root.getChildren().add(pause);
                         stage.show();
                     }else{
                         Status = STATUS.SPILL;
-                        saveStatus.setText("");
+                        lagret.setText(" ");
                         root.getChildren().removeAll(pause);
                     }
                 }
                 
                 fortsett.setOnAction((ActionEvent eo) -> {
                     Status = STATUS.SPILL;
-                    saveStatus.setText("");
+                    lagret.setText(" ");
                     root.getChildren().removeAll(pause);
                 });
                 
@@ -762,25 +931,45 @@ public class Main extends Application{
                         bosser.get(t).setPosXY(bosser.get(t).getView().getTranslateX(), bosser.get(t).getView().getTranslateY());
                     }
                     filen.saveBoss(bosser);
+                    for(int t = 0; t < destroyers.size(); t++){
+                        destroyers.get(t).setPosXY(destroyers.get(t).getView().getTranslateX(), destroyers.get(t).getView().getTranslateY());
+                    }
+                    filen.saveDestroyer(destroyers);
                     filen.saveSpiller(player.getHp(), player.getScore(), player.getPosX(), player.getPosY(), player.getPowerup());
-                    saveStatus.setText("Lagret");
+                    lagret.setText("Lagret.");
                 });
                 
                 quit.setOnAction((ActionEvent ek) ->{
                     Status = STATUS.MENY;
                     loadNy.setText("Starter nytt spill");
                     load.setText("Last lagret spill");
+                    lagret.setText(" ");
                     timer.stop();
                     timer2.stop();
                     fiender.clear();
-                    bullets.clear();
                     bosser.clear();
+                    destroyers.clear();
+                    bullets.clear();
                     loaded = false;
                     stage.setMaximized(false);
                     stage.setScene(start);
                 });
-
-
+                
+                gameOverB.setOnAction((ActionEvent ep) ->{
+                    Status = STATUS.MENY;
+                    loadNy.setText("Starter nytt spill");
+                    load.setText("Last lagret spill");
+                    lagret.setText(" ");
+                    timer.stop();
+                    timer2.stop();
+                    fiender.clear();
+                    bosser.clear();
+                    destroyers.clear();
+                    bullets.clear();
+                    loaded = false;
+                    stage.setMaximized(false);
+                    stage.setScene(start);
+                });
             });
 
 
