@@ -2,39 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b825f114-1fb3-4953-9c2e-eec8d9b5b798" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Cloaker.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Flamethrower.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Boss.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/BossLoad.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Destroyer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/DestroyerLoad.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/FiendeLoad.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/FiendeSkudd.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Fiender.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/GameObject.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Main.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Misiler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Skudd.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Spiller.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/SpillerLoad.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Sprite.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/save.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/load.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Boss.java" afterPath="$PROJECT_DIR$/src/Boss.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/BossLoad.java" afterPath="$PROJECT_DIR$/src/BossLoad.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Destroyer.java" afterPath="$PROJECT_DIR$/src/Destroyer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/FiendeLoad.java" afterPath="$PROJECT_DIR$/src/FiendeLoad.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/FiendeSkudd.java" afterPath="$PROJECT_DIR$/src/FiendeSkudd.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Fiender.java" afterPath="$PROJECT_DIR$/src/Fiender.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/GameObject.java" afterPath="$PROJECT_DIR$/src/GameObject.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Main.java" afterPath="$PROJECT_DIR$/src/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Misiler.java" afterPath="$PROJECT_DIR$/src/Misiler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Skudd.java" afterPath="$PROJECT_DIR$/src/Skudd.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Spiller.java" afterPath="$PROJECT_DIR$/src/Spiller.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/SpillerLoad.java" afterPath="$PROJECT_DIR$/src/SpillerLoad.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Sprite.java" afterPath="$PROJECT_DIR$/src/Sprite.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/save.java" afterPath="$PROJECT_DIR$/src/save.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -485,7 +453,21 @@
       <option name="project" value="LOCAL" />
       <updated>1526242152262</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Ny version">
+      <created>1526404271647</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1526404271647</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Ny version">
+      <created>1526404324721</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1526404324721</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="ToolWindowManager">
