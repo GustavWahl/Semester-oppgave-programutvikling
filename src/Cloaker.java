@@ -1,45 +1,48 @@
+
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 
 /**
- * Destroyer represents the bosses with lock on shots in the game
- * 
- * @author Gustav Wahl and Gustav Wehn
+ * Cloaker represents an new enemy type
+ *
+ * @author gustav Wahl
  */
-public class Destroyer extends GameObject{
 
+public class Cloaker extends GameObject{
     private boolean alive = true;
     private int hp;
     private int decideActiveState;
     private double posX;
     private double posY;
-    private int walk;
 
     /**
-     * Constructs and initializes the a Destroyer object
-     * 
-     * @param hp hp of the destroyer
-     * @param alive alive state of the destroyer
-     * @param view position of the destroyer
-     * @param posX the X coordinate of the destroyer
-     * @param posY the Y coordinate of the destroyer
+     * Constructs and initializes a Cloaker object
+     *
+     * @param hp hp of the enemy
+     * @param alive if the enemy is alive or not
+     * @param view position of the enemy
+     * @param posX X coordenate of the enemy
+     * @param posY Y coordinate of the enemy
      */
-    public Destroyer(int hp,boolean alive, Node view, double posX, double posY){
+
+
+    public Cloaker(int hp,boolean alive, Node view, double posX, double posY){
         super(view);
         this.hp = hp;
         this.alive = alive;
         this.posX = posX;
         this.posY = posY;
     }
-    
+
+
     /**
-     * Decides the state of the destroyer, what the destroyer does.
+     * Decides the state of the Cloaker, what the enemy does.
      * It runs a method that constatly runs. Gets called from animation timer.
-     * 
-     * @param object the player in the game
-     * @param object2 the destroyer
+     *
+     * @param object is the player in the game
+     * @param object2 the Cloaker
      */
-    public void FSM (GameObject object , Destroyer object2) {
+    public void FSM (GameObject object , Cloaker object2) {
 
 
         switch (decideActiveState) {
@@ -62,21 +65,23 @@ public class Destroyer extends GameObject{
     }
 
     /**
-     * Sets the state of the destroyer
-     * 
+     * Sets the state of the enemy
+     *
      * @param state state
      */
     public void setState(int state) {
         decideActiveState = state;
     }
 
+
     /**
-     * Localizes the player relative to the destroyer
-     * 
+     * Localizes the player relative to the enemy
+     *
      * @param object the player in the game
-     * @param object2 the destroyer
+     * @param object2 the enemy
      */
-    public void StateShoot(GameObject object, Destroyer object2) {
+
+    public void StateShoot(GameObject object, Cloaker object2) {
 
         if (object2.getVelocity().getX() <= -1) {
 
@@ -206,7 +211,7 @@ public class Destroyer extends GameObject{
 
 
 
-        //      object2.setVelocity(new Point2D((((object.getX() - object2.getX()) * 0.01)), (((object.getY() - object2.getY()) * 0.01))));
+
 
 
 
@@ -215,14 +220,14 @@ public class Destroyer extends GameObject{
             setState(1);
         }
     }
-    
+
     /**
      * Localizes and calculates distance to the player
-     * 
+     *
      * @param object the player in the game
-     * @param object2 the destroyer
+     * @param object2 the enemy
      */
-    public void StateWalk(GameObject object, Destroyer object2) {
+    public void StateWalk(GameObject object, Cloaker object2) {
 
 
         if (object2.getVelocity().getX() <= -1) {
@@ -358,35 +363,41 @@ public class Destroyer extends GameObject{
 
 
 
+
+
+
+
         if (pIsFurtherToTheXAway){
-            object2.setVelocity(new Point2D(2.5,0));
+            object2.setVelocity(new Point2D(3,0));
 
             if (Math.abs(object.getY() - object2.getY()) > 50){
 
                 if(pIsFurtherToTheYAway){
-                    object2.setVelocity(new Point2D(0,2.5));
+                    object2.setVelocity(new Point2D(0,3));
                 }
 
                 else if (pIsFurtherToTheMinusYAway){
-                    object2.setVelocity(new Point2D(0,-2.5));
+                    object2.setVelocity(new Point2D(0,-3));
                 }
             }
         }
 
         else if (pIsFurtherToTheMinusXAway){
-            object2.setVelocity(new Point2D(-2.5,0));
+            object2.setVelocity(new Point2D(-3,0));
 
             if (Math.abs(object.getY() - object2.getY()) > 50){
 
                 if(pIsFurtherToTheYAway){
-                    object2.setVelocity(new Point2D(0,2.5));
+                    object2.setVelocity(new Point2D(0,3));
                 }
 
                 else if (pIsFurtherToTheMinusYAway){
-                    object2.setVelocity(new Point2D(0,-2.5));
+                    object2.setVelocity(new Point2D(0,-3));
                 }
             }
+
         }
+
 
 
         if (Math.pow((object.getX() - object2.getX()),2) *0.001 <= 5 || Math.pow((object.getY() - object2.getY()),2)* 0.001 <= 5 ) {
@@ -395,54 +406,59 @@ public class Destroyer extends GameObject{
     }
 
 
+
+
+
+
+
     /**
-     * Gets the active state of the destroyer
-     * 
-     * @return decideActiveState
+     * Gets the activestate of the enemy
+     *
+     * @return active state
      */
     public int getDecideActiveState() {
         return decideActiveState;
     }
 
     /**
-     * Sets the hp of the destroyer
-     * 
+     * Sets the hp of the enemy
+     *
      * @param hp hp
      */
     public void setHp(int hp) {
         this.hp = hp;
     }
-    
+
     /**
-     * Gets the hp of the destroyer
-     * 
+     * Gets the hp of the enemy
+     *
      * @return hp
      */
     public int getHp() {
         return hp;
     }
-    
+
     /**
-     * Gets the opisite of the alive state of the destroyer
-     * 
-     * @return !alive
+     * Gets the alive state of the enemy
+     *
+     * @return the alive-sate of the enemy
      */
     public boolean isDead(){
         return !alive;
     }
-    
+
     /**
-     * Sets the alive state of the destroyer
-     * 
-     * @param alive alive
+     * Sets the alive state of the enemy
+     *
+     * @param alive alive state
      */
     public void setAlive(boolean alive) {
         this.alive = alive;
     }
-    
+
     /**
-     * Sets the X and Y coordinates of the destroyer
-     * 
+     * sets the X and Y coordinates of the enemy
+     *
      * @param posX X coordinate
      * @param posY Y coordinate
      */
@@ -450,25 +466,24 @@ public class Destroyer extends GameObject{
         this.posX = posX;
         this.posY = posY;
     }
-    
+
     /**
-     * Gets the X coordinate of the destroyer 
-     * 
+     * returns the X coordinte of the enemy
+     *
      * @return X coordinate
      */
     public double getPosX(){
         return posX;
     }
-    
+
     /**
-     * Gets the Y coordinate of the destroyer
-     * 
-     * @return Y coordinate
+     * returns the Y coordinate
+     *
+     * @return X coordinate
      */
     public double getPosY(){
         return posY;
     }
 }
-
 
 
